@@ -1,0 +1,39 @@
+/*
+    hanabdi
+    ---------------------------
+
+    Jason Project File
+
+    This file defines the initial state of the MAS
+
+    Jason 3.0
+    noviembre 08, 2021 - 09:12:47
+*/
+
+MAS hanabdi {
+
+    // numplayer, numLives, numInfoTokens, numColors, numRanks, seed
+    environment:
+        hanabiEnv.HanabiGame(4, 3, 8, 5, 5, 100)
+
+    agents:
+        alice
+            hyphen_agent
+            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(1));
+
+        bob
+            hyphen_agent
+            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(2));
+
+        cathy
+            hyphen_agent
+            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(3));
+
+        donald
+            hyphen_agent
+            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(4));
+
+        /* emma
+            hyphen_agent
+            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(5)); */
+}
