@@ -9,7 +9,7 @@ public class HanabiCardHolder {
         this.owner = owner;
         this.numSlots = numSlots;
         for (int i = 0; i < numSlots; i++) {
-            this.cards[i] = new HanabiCard("none", -1);
+            this.cards[i] = null;
         }
     }
 
@@ -29,12 +29,11 @@ public class HanabiCardHolder {
         if (slot < 1 || slot > numSlots) {
             throw new IllegalArgumentException(String.format("Slot position must be between 1 and %d", numSlots));
         }
-        HanabiCard prevCard = cards[slot-1];
-
-        if (prevCard.getColor() != "none" || prevCard.getRank() != -1) {
+        HanabiCard prevCard = cards[slot - 1];
+        if (prevCard != null) {
             return false;
         }
-        cards[slot-1] = new HanabiCard(color, rank);
+        cards[slot - 1] = new HanabiCard(color, rank);
         return true;
     }
 
@@ -43,7 +42,7 @@ public class HanabiCardHolder {
             throw new IllegalArgumentException(String.format("Slot position must be between 1 and %d", numSlots));
         }
         HanabiCard card = cards[slot - 1];
-        cards[slot - 1] = new HanabiCard("none", -1);
+        cards[slot - 1] = null;
         return card;
     }
 

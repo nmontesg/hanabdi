@@ -14,26 +14,9 @@ MAS hanabdi {
 
     // numplayer, numLives, numInfoTokens, numColors, numRanks, seed
     environment:
-        hanabiEnv.HanabiGame(4, 3, 8, 5, 5, 100)
+        hanabiEnv.HanabiGame(4, 3, 8, 5, 5, 0)
 
     agents:
-        alice
-            hyphen_agent
-            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(1));
+        game_master;
 
-        bob
-            hyphen_agent
-            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(2));
-
-        cathy
-            hyphen_agent
-            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(3));
-
-        donald
-            hyphen_agent
-            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(4));
-
-        /* emma
-            hyphen_agent
-            beliefBaseClass customBB.InitialBeliefBase(my_turn_number(5)); */
 }

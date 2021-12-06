@@ -2,6 +2,7 @@ package hanabiEnv;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Collections;
 import jason.asSyntax.*;
 import jason.environment.*;
 
@@ -28,7 +29,7 @@ public class HanabiGame extends Environment {
     private HanabiCardHolder[] cardHolders = new HanabiCardHolder[5];
 
     private int playerTurn;
-    private String gameStage;
+    private boolean lastRound;
     private String lastPlayer;
 
     private int hintId;
@@ -41,6 +42,11 @@ public class HanabiGame extends Environment {
             throw new IllegalArgumentException("number of players must be between 2 and 5");
         }
         addPercept(Literal.parseLiteral(String.format("num_players(%d)", numPlayers)));
+        for (int i = 0; i < numPlayers; i++) {
+            addPercept(Literal.parseLiteral(String.format("player(%s)", agents.get(i))));
+            addPercept(Literal.parseLiteral(String.format("turn_number(%s,%d)", agents.get(i), i+1)));
+        }
+        playerTurn = 0;
 
         // lives
         maxLives = Integer.parseInt(args[1]);
@@ -97,6 +103,7 @@ public class HanabiGame extends Environment {
             }
         }
 
+        // set seed of the random card dealer
         int seed = Integer.parseInt(args[5]);
         cardDealer.setSeed(seed);
 
@@ -121,47 +128,43 @@ public class HanabiGame extends Environment {
         addPercept(Literal.parseLiteral(String.format("score(%d)", 0)));
         addPercept(Literal.parseLiteral(String.format("max_score(%d)", maxScore)));
 
+        // hint counter
+        hintId = 1;
+        addPercept(Literal.parseLiteral(String.format("hint_id(%d)", hintId)));
+
         // card holders
         for (int i = 0; i < numPlayers; i++) {
             cardHolders[i] = new HanabiCardHolder(agents.get(i), cardsPerPlayer);
-            for (int k = 1; k <= cardsPerPlayer; k++) {
-                HanabiCard card = cardHolders[i].getCard(k);
-                String color = card.getColor();
-                int rank = card.getRank();
-                for (int j = 0; j < numPlayers; j++) {
-                    if (j != i) {
-                        addPercept(agents.get(j), Literal.parseLiteral(String.format("has_card_color(%s,%d,%s)", agents.get(i), k, color)));
-                        addPercept(agents.get(j), Literal.parseLiteral(String.format("has_card_rank(%s,%d,%d)", agents.get(i), k, rank)));
-                    }
-                }
+        }
+        // populate card holders initially from within the environment
+        for (int i = 0; i < numPlayers; i++) {
+            String agent = agents.get(i);
+            for (int j = 1; j <= cardsPerPlayer; j++) {
+                drawRandomCard(agent, j);
             }
         }
 
-        // control whose player turn it is
-        playerTurn = 1;
-        addPercept(Literal.parseLiteral(String.format("player_turn(%d)", playerTurn)));
-
-        // initially in set-up mode
-        gameStage = "setup";
-        addPercept(Literal.parseLiteral(String.format("game_stage(%s)", gameStage)));
-
-        hintId = 1;
-        addPercept(Literal.parseLiteral(String.format("hint_id(%d)", hintId)));
+        lastRound = false;
+        lastPlayer = null;
     }
 
     @Override
     public boolean executeAction(String agent, Structure action) {
         boolean result = false;
 
-        // action: finish turn of current player
-        if (action.getFunctor().equals("finish_turn")) { // finish_turn
-            result = moveToNextPlayer();
+        // if wrong player is taking action, return false right away
+        if (playerTurn > 0 && !agent.equals(agents.get(playerTurn - 1))) {
+            return result;
         }
 
-        // action: change the stage of the game
-        else if (action.getFunctor().equals("change_game_stage")) { // change_game_stage(NewStage)
-            String newStage = action.getTerm(0).toString();
-            result = changeGameStage(newStage);
+        // action: start the game by game_master agent
+        if (action.getFunctor().equals("start_game")) {
+            result = startGame();
+        }
+
+        // action: finish turn of current player
+        else if (action.getFunctor().equals("finish_turn")) { // finish_turn
+            result = moveToNextPlayer(agent);
         }
 
         // action: pick random card from deck and put it in the card holder
@@ -190,17 +193,20 @@ public class HanabiGame extends Environment {
         return result;
     }
 
-    private boolean moveToNextPlayer() {
-        removePerceptsByUnif(Literal.parseLiteral("player_turn(_)"));
-        playerTurn = playerTurn % numPlayers + 1;
+    private boolean startGame() {
+        playerTurn = 1;
         addPercept(Literal.parseLiteral(String.format("player_turn(%d)", playerTurn)));
         return true;
     }
 
-    private boolean changeGameStage(String newStage) {
-        removePerceptsByUnif(Literal.parseLiteral("game_stage(_)"));
-        gameStage = newStage;
-        addPercept(Literal.parseLiteral(String.format("game_stage(%s)", newStage)));
+    private boolean moveToNextPlayer(String agent) {
+        if (lastRound && agent.equals(lastPlayer)) {
+            stop();
+        }
+
+        removePerceptsByUnif(Literal.parseLiteral("player_turn(_)"));
+        playerTurn = playerTurn % numPlayers + 1;
+        addPercept(Literal.parseLiteral(String.format("player_turn(%d)", playerTurn)));
         return true;
     }
 
@@ -221,10 +227,6 @@ public class HanabiGame extends Environment {
                     deck[i][j] -= 1;
                     colorDrawn = hanabiColors.get(i);
                     rankDrawn = j + 1;
-                    // update percept numCardsDeck
-                    numCardsDeck -= 1;
-                    removePerceptsByUnif(Literal.parseLiteral(String.format("num_cards_deck(_)")));
-                    addPercept(Literal.parseLiteral(String.format("num_cards_deck(%d)", numCardsDeck)));
                     break outer;
                 }
             }
@@ -234,6 +236,11 @@ public class HanabiGame extends Environment {
         if (colorDrawn == "none" || rankDrawn == -1) {
             return false;
         }
+
+        // update numCardsDeck
+        numCardsDeck -= 1;
+        removePerceptsByUnif(Literal.parseLiteral(String.format("num_cards_deck(_)")));
+        addPercept(Literal.parseLiteral(String.format("num_cards_deck(%d)", numCardsDeck)));
 
         // put the drawn card in the holder of the agent
         int index = agents.indexOf(agent);
@@ -245,16 +252,17 @@ public class HanabiGame extends Environment {
         // update percepts for the other agents
         for (int k = 0; k < numPlayers; k++) {
             if (k != index) {
-                removePerceptsByUnif(agents.get(k), Literal.parseLiteral(String.format("has_card_color(%s,%d,_)", agent, slot)));
-                removePerceptsByUnif(agents.get(k), Literal.parseLiteral(String.format("has_card_rank(%s,%d,_)", agent, slot)));
                 addPercept(agents.get(k), Literal.parseLiteral(String.format("has_card_color(%s,%d,%s)", agent, slot, colorDrawn)));
                 addPercept(agents.get(k), Literal.parseLiteral(String.format("has_card_rank(%s,%d,%d)", agent, slot, rankDrawn)));
             }
         }
+        addPercept("game_master", Literal.parseLiteral(String.format("has_card_color(%s,%d,%s)", agent, slot, colorDrawn)));
+        addPercept("game_master", Literal.parseLiteral(String.format("has_card_rank(%s,%d,%d)", agent, slot, rankDrawn)));
 
         // when last card is drawn, mechanism to consider that only one move per player is left
         if (numCardsDeck == 0) {
-            changeGameStage("lateGame");
+            lastRound = true;
+            addPercept(Literal.parseLiteral("late_game"));
             lastPlayer = agent;
             addPercept(Literal.parseLiteral(String.format("last_player(%s)", agent)));
         }
@@ -266,7 +274,7 @@ public class HanabiGame extends Environment {
         // pick the card from the holder
         int index = agents.indexOf(agent);
         HanabiCard card = cardHolders[index].pickCard(slot);
-        if (card.getColor() == "none" || card.getRank() == -1) {
+        if (card == null) {
             return false;
         }
 
@@ -275,10 +283,10 @@ public class HanabiGame extends Environment {
             if (k != index) {
                 removePerceptsByUnif(agents.get(k), Literal.parseLiteral(String.format("has_card_color(%s,%d,_)", agent, slot)));
                 removePerceptsByUnif(agents.get(k), Literal.parseLiteral(String.format("has_card_rank(%s,%d,_)", agent, slot)));
-                addPercept(agents.get(k), Literal.parseLiteral(String.format("has_card_color(%s,%d,%s)", agent, slot, cardHolders[index].getCard(slot).getColor())));
-                addPercept(agents.get(k), Literal.parseLiteral(String.format("has_card_rank(%s,%d,%d)", agent, slot, cardHolders[index].getCard(slot).getRank())));
             }
         }
+        removePerceptsByUnif("game_master", Literal.parseLiteral(String.format("has_card_color(%s,%d,_)", agent, slot)));
+        removePerceptsByUnif("game_master", Literal.parseLiteral(String.format("has_card_rank(%s,%d,_)", agent, slot)));
 
         String color = card.getColor();
         int rank = card.getRank();
@@ -305,7 +313,8 @@ public class HanabiGame extends Environment {
                 removePerceptsByUnif(Literal.parseLiteral(String.format("num_info_tokens(_)")));
                 addPercept(Literal.parseLiteral(String.format("num_info_tokens(%d)",numInfoTokens)));
             }
-        } else { // cards is not okay to play
+        } else {
+            // cards is not okay to play
             // loose one live
             numLives -= 1;
             removePerceptsByUnif(Literal.parseLiteral(String.format("num_lives(_)")));
@@ -326,12 +335,7 @@ public class HanabiGame extends Environment {
             addPercept(Literal.parseLiteral(String.format("discarded(%s,%d,%d)", color, rank, discarded[colorInd][rank-1])));
         }
 
-        if (agent == lastPlayer && gameStage == "lateGame") {
-            stop();
-        }
-
         return true;
-
     }
 
     private boolean discardCard(String agent, int slot) {
@@ -342,7 +346,7 @@ public class HanabiGame extends Environment {
         // pick the card from the holder
         int index = agents.indexOf(agent);
         HanabiCard card = cardHolders[index].pickCard(slot);
-        if (card.getColor() == "none" || card.getRank() == -1) {
+        if (card == null) {
             return false;
         }
 
@@ -351,10 +355,10 @@ public class HanabiGame extends Environment {
             if (k != index) {
                 removePerceptsByUnif(agents.get(k), Literal.parseLiteral(String.format("has_card_color(%s,%d,_)", agent, slot)));
                 removePerceptsByUnif(agents.get(k), Literal.parseLiteral(String.format("has_card_rank(%s,%d,_)", agent, slot)));
-                addPercept(agents.get(k), Literal.parseLiteral(String.format("has_card_color(%s,%d,%s)", agent, slot, cardHolders[index].getCard(slot).getColor())));
-                addPercept(agents.get(k), Literal.parseLiteral(String.format("has_card_rank(%s,%d,%d)", agent, slot, cardHolders[index].getCard(slot).getRank())));
             }
         }
+        removePerceptsByUnif("game_master", Literal.parseLiteral(String.format("has_card_color(%s,%d,_)", agent, slot)));
+        removePerceptsByUnif("game_master", Literal.parseLiteral(String.format("has_card_rank(%s,%d,_)", agent, slot)));
 
         String color = card.getColor();
         int rank = card.getRank();
@@ -371,10 +375,6 @@ public class HanabiGame extends Environment {
         numInfoTokens += 1;
         removePerceptsByUnif(Literal.parseLiteral(String.format("num_info_tokens(_)")));
         addPercept(Literal.parseLiteral(String.format("num_info_tokens(%d)",numInfoTokens)));
-
-        if (agent == lastPlayer && gameStage == "lateGame") {
-            stop();
-        }
 
         return true;
     }
