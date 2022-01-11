@@ -1,3 +1,10 @@
 {
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+
+    "command-runner.terminal.name": "runMAS",
+    "command-runner.terminal.autoClear": true,
+    "command-runner.terminal.autoFocus": true,
+    "command-runner.commands": {
+        "runMAS": "jason hanabdi.mas2j"
+    }
 }

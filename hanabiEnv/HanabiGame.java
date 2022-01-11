@@ -105,6 +105,7 @@ public class HanabiGame extends Environment {
 
         // set seed of the random card dealer
         int seed = Integer.parseInt(args[5]);
+        addPercept(Literal.parseLiteral(String.format("seed(%d)", seed)));
         cardDealer.setSeed(seed);
 
         // the stacks of cards
@@ -121,6 +122,9 @@ public class HanabiGame extends Environment {
             cardsPerPlayer = 4;
         }
         addPercept(Literal.parseLiteral(String.format("cards_per_player(%d)", cardsPerPlayer)));
+        for (int i = 0; i < cardsPerPlayer; i++) {
+            addPercept(Literal.parseLiteral(String.format("slot(%d)", i + 1)));
+        }
 
         // score
         score = 0;
@@ -398,6 +402,13 @@ public class HanabiGame extends Environment {
     @Override
     public void stop() {
         System.out.println(String.format("Game finished with score %d.", score));
+        // FIXME: actually exit from running the MAS. Does this work?
+        try{
+            getEnvironmentInfraTier().getRuntimeServices().stopMAS();
+        }
+        catch (Exception exc) {
+            System.out.println(exc.getMessage());
+        }
     }
 
 }

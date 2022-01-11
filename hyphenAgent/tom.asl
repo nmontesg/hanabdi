@@ -1,37 +1,63 @@
-inference(
-    playable(Player,Slot),
-    [
-        has_card_color(Player,Slot,Color),
-        has_card_rank(Player,Slot,Rank),
-        stack(Color,Rank-1)
-    ]
-).
+// The adopt_perspective(+L) plan saves the beliefs of the agent in a buffer
+// and substitutes them by the beliefs that the agent would have if they took
+// the perspective of the agents in L in sequences:
+// Examples:
+//      * I want to know what is the perspective of bob (nesting level 1):
+//              !adopt_perspective([bob]).
+//      * I want to know what bob thinks the perspective of cathy is (nesting level 2):
+//              !adopt_perspective([bob, cathy]).
+//      * I want to know what bob thinks my perspective is (nesting level 2):
+//              my_name(Me); !adopt_perspective([bob, Me]).
 
-inference(
-    critical(Player,Slot),
-    [
-        has_card_color(Player,Slot,Color),
-        has_card_rank(Player,Slot,Rank),
-        cards_per_rank(Rank,N),
-        discarded(Color,Rank,N-1)
-    ]
-).
+@adopt_perspective[atomic]
++!adopt_perspective(L) : true
+    <- custom.backup_beliefs;
+    for ( .member(Next, L) ) {
+        .findall(B [Annot], knows(Next, B [Annot]), BList);
+        .relevant_rules(_, AllRules);
+        custom.remove_beliefs;
+        for ( .member(Bel [Annot], BList) ) {
+            +Bel [Annot];
+        }
+        for ( .member(Rule, AllRules) ) {
+            +Rule [source(self)];
+        }
+    }.
 
+/* -------- First-order Theory of Mind -------- */
 
+knows(Ag, my_name(Ag) [source(self)]).
 
+// Percepts: Except Ag's own cards, all other percepts are shared.
+// has_card_color and has_card_rank are only available to Ag as percepts if
+// they don't refer to Ag's own cards.
 
-// We are all using the same inference rules
-believes(Ag,inference(C,P)) :- inference(C,P).
+knows(Ag, P [source(percept)]) :-
+    player(Ag) & 
+    P [source(percept)] &
+    P =.. [Functor, _, _] &
+    Functor \== has_card_color &
+    Functor \== has_card_rank.
 
-// An agent will infer a conclusions if it believes in the premises and in the
-// inference rule
-believes(Ag,C) :- believes(Ag,inference(C,P)) & believes(P).
+knows(Agi, has_card_color(Agj, S, C) [source(percept)]) :-
+    player(Agi) & player(Agj) & Agi \== Agj & slot(S) & color(C) &
+    has_card_color(Agj, S, C) [source(percept)].
 
+knows(Agi, has_card_rank(Agj, S, R) [source(percept)]) :-
+    player(Agi) & player(Agj) & Agi \== Agj & slot(S) & rank(R) &
+    has_card_rank(Agj, S, R) [source(percept)].
 
-// First-order Theory of Mind: what do other agents perceive
-believes(Ag,P[source(percept)]) :-
-    P[source(percept)] &
-    P \== has_card_rank(_,_) &
-    P \== has_card_rank(_,_).
+// Hints: information explicitly derived from hints is available to all other
+// agents
 
-believes(Ag,)
+knows(Ag, P [source(hint)]) :- player(Ag) & P [source(hint)].
+
+// Mental notes: as all agents share the same code, they all make the same
+// mental notes, which refer to the hints given and the ordered slots of
+// the players
+
+knows(Ag, hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots) [source(self)]) :-
+    player(Ag) & hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots) [source(self)].
+
+knows(Agi, ordered_slots(Agj, Slots) [source(self)]) :-
+    player(Agi) & player(Agj) & ordered_slots(Agj, Slots) [source(self)].

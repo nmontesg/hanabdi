@@ -1,69 +1,22 @@
-// Agent hyphen_agent in project hanabdi
-//
-// Basic plan library of procedural goals
-
-/* Initial beliefs and rules */
-
-/* Plans */
-
-/* ---------- Plan to initialize ordered slots for all players ---------- */
-
-@getReady[atomic]
-+!get_ready : cards_per_player(N)
-    <- .findall(Ag, player(Ag), PlayerList);
-    .findall(X, .range(X, 1, N), SlotList);
-    for ( .member(P, PlayerList) ) {
-        +ordered_slots(P, SlotList);
-    }
-    .send(game_master, tell, ready).
-
-
-/* ---------- Plans for basic game actions ---------- */
-
-// these are procedural plans to take direct action in the game
-
-@playCard[atomic]
-+!play_card(Slot) : true
-    <- play_card(Slot);
-    !process_action(took_card(Slot));
-    !replace_card(Slot);
-    finish_turn.
-
-@discardCard[atomic]
-+!discard_card(Slot) : true
-    <- discard_card(Slot);
-    !process_action(took_card(Slot));    
-    !replace_card(Slot);
-    finish_turn.
-
-@replaceCard1[atomic]
-+!replace_card(Slot) : num_cards_deck(D) & D > 0
-    <- draw_random_card(Slot);
-    !process_action(placed_card(Slot)).
-
-@replaceCard2[atomic]
-+!replace_card(Slot) : num_cards_deck(0).
-
-// Mode is either color or rank
-@giveHint[atomic]
-+!give_hint(ToPlayer, Mode, Value) : true
-    <- ?hint_id(Id);
-    spend_info_token;
-    .concat("has_card_", Mode, String);
-    .term2string(Term, String);
-    Goal =.. [Term, [ToPlayer, S, Value], [source(percept)]];
-    .findall(S, Goal, Slots);
-    .my_name(FromPlayer);
-    !process_action(hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots));
-    finish_turn.
-
-
-/* ---------- Plans to process actions by myself ---------- */
+// This script contains the plan to update beliefs based on what action I
+// have taken and what actions have been taken by others.
+// Because actions by other agents are not automatically perceived by other
+// agents in Jason, agents need to performa a broadcast so that all agents
+// are aware of what everyone else is doing. A custom performative
+// ``publicAction'' is used for that.
+// Belief update for actions performed by oneself happens through standard
+// Jason plans.
+// Belief update for actions performed by others (and received through
+// communication) is handled through kqml_received plans.
+// These plans only handle EXPLICIT information directly communicated or
+// otherwise conveyed by the agents.
 
 @processAction[atomic]
 +!process_action(Action) : true
     <- !process_my_action(Action);
     .broadcast(publicAction, Action).
+
+/* ---------- Plans to process actions by myself ---------- */
 
 @processMyAction1[atomic]
 +!process_my_action(took_card(Slot)) : true
@@ -84,10 +37,11 @@
     +ordered_slots(Me, Lprime).
 
 @processMyAction3[atomic]
-+!process_my_action(hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots)) : cards_per_player(N)
++!process_my_action(hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots)) : true
     <- +hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots);
     .concat("has_card_", Mode, String);
     .term2string(Term, String);
+    ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
         Belief =.. [Term, [ToPlayer, S, Value], [source(hint), hint_id(Id)]];
         if ( .member(S, Slots) ) {
@@ -96,7 +50,6 @@
             +(~Belief);
         }
     }.
-
 
 /* ---------- Plans to process actions by other players ---------- */
 
@@ -108,7 +61,8 @@
 // of messages received with such a performative.
 
 @kqmlReceivedPublicAction1[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, took_card(Slot), KQML_MsgId) : true
++!kqml_received(KQML_Sender_Var, publicAction, took_card(Slot), KQML_MsgId)
+    : true
     <- ?ordered_slots(KQML_Sender_Var, L);
     .nth(N, L, Slot);
     .delete(N, L, Lprime);
@@ -118,7 +72,8 @@
 
 
 @kqmlReceivedPublicAction2[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, placed_card(Slot), KQML_MsgId) : true
++!kqml_received(KQML_Sender_Var, publicAction, placed_card(Slot), KQML_MsgId)
+    : true
     <- ?ordered_slots(KQML_Sender_Var, L);
     .concat(L, [Slot], Lprime);
     -ordered_slots(KQML_Sender_Var, _);
@@ -128,10 +83,13 @@
 // kqml_received plan to process explicit information
 // from hints given by other players
 @kqmlReceivedPublicAction3[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots), KQML_MsgId) : cards_per_player(N)
++!kqml_received(KQML_Sender_Var, publicAction,
+                hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots), KQML_MsgId)
+    : true
     <- +hint(Id, FromPlayer, ToPlayer, Mode, Value, Slots);
     .concat("has_card_", Mode, String);
     .term2string(Term, String);
+    ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
         Belief =.. [Term, [ToPlayer, S, Value], [source(hint), hint_id(Id)]];
         if ( .member(S, Slots) ) {
@@ -140,7 +98,6 @@
             +(~Belief);
         }
     }.
-
 
 // Remove the information coming from HINTS, not PERCEPTS.
 // Percepts are automatically updated by the Jason interpreter.
