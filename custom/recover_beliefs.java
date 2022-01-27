@@ -15,7 +15,7 @@ public class recover_beliefs extends DefaultInternalAction {
         } catch (ClassCastException e) {
             throw new JasonException("Agent executing 'recover_beliefs' cannot be casted to HanabiAgent class");
         } catch (Exception e) {
-            throw new JasonException(e.toString());
+            throw new JasonException("Error in 'recover_beliefs': " + e.toString());
         }
     }
     

@@ -1,0 +1,84 @@
+Executing /usr/lib/jvm/java-17-openjdk-amd64/bin/java -classpath /home/nmontes/jason/libs/ant-launcher-1.10.5.jar org.apache.tools.ant.launch.Launcher -e -f bin/hanabdi.xml run
+Buildfile: /home/nmontes/OneDrive/Documentos/PhD/hanabdi/bin/hanabdi.xml
+
+init:
+
+user-init:
+
+compile:
+
+run:
+Running project hanabdi
+Jason Http Server running on http://127.0.1.1:3272
+[alice] I selected the action: give_hint(bob,rank,1)
+[bob] I received the abduce command
+[bob] @hintCriticalCard[priority(1),source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (has_critical_card(bob,Slot) & (chop(bob,Slot) & has_card_rank(bob,Slot,1))))).
+[bob] (available_info_tokens & (turns_ahead(bob,1) & (has_critical_card(bob,Slot) & (chop(bob,Slot) & has_card_rank(bob,Slot,1)))))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: available_info_tokens
+[bob]     RHS: (turns_ahead(bob,1) & (has_critical_card(bob,_274) & (chop(bob,_274) & has_card_rank(bob,_274,1))))
+[bob] Delta0: []
+[bob] Abducing goal available_info_tokens, which is derived from the BB
+[bob] Delta0: []
+[bob] Abducing conjunction of goals:
+[bob]     LHS: turns_ahead(bob,1)
+[bob]     RHS: (has_critical_card(bob,_281) & (chop(bob,_281) & has_card_rank(bob,_281,1)))
+[bob] Delta0: []
+[bob] Abducing goal turns_ahead(bob,1), which is derived from the BB
+[bob] Delta0: []
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_critical_card(bob,_288)
+[bob]     RHS: (chop(bob,_288) & has_card_rank(bob,_288,1))
+[bob] Delta0: []
+[bob] Abducing goal has_critical_card(bob,_294), which is not derived from the BB but has relevant rule { has_critical_card(_210,_211) :- (has_card_color(_210,_211,_212) & (has_card_rank(_210,_211,_213) & (cards_per_rank(_213,_214) & (discarded(_212,_213,_215) & (_215 = (_214-1)))))) }
+[bob] Delta0: []
+[bob] has_critical_card(bob,_302) :- (has_card_color(bob,_302,_303) & (has_card_rank(bob,_302,_304) & (cards_per_rank(_304,_305) & (discarded(_303,_304,_306) & (_306 = (_305-1))))))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_color(bob,_307,_308)
+[bob]     RHS: (has_card_rank(bob,_307,_309) & (cards_per_rank(_309,_310) & (discarded(_308,_309,_311) & (_311 = (_310-1)))))
+[bob] Delta0: []
+[bob] Abducing goal has_card_color(bob,2,white), which is an abducible atom
+[bob] Delta0: [] --> Delta: [has_card_color(bob,2,white)]
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,2,_330)
+[bob]     RHS: (cards_per_rank(_330,_331) & (discarded(white,_330,_332) & (_332 = (_331-1))))
+[bob] Delta0: [has_card_color(bob,2,white)]
+[bob] Abducing goal has_card_rank(bob,2,3), which is an abducible atom
+[bob] Delta0: [has_card_color(bob,2,white)] --> Delta: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
+[bob] Abducing conjunction of goals:
+[bob]     LHS: cards_per_rank(3,_344)
+[bob]     RHS: (discarded(white,3,_345) & (_345 = (_344-1)))
+[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
+[bob] Abducing goal cards_per_rank(3,2), which is derived from the BB
+[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
+[bob] Abducing conjunction of goals:
+[bob]     LHS: discarded(white,3,_355)
+[bob]     RHS: (_355 = 1)
+[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
+[bob] Abducing goal discarded(white,3,0), which is derived from the BB
+[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
+[bob] Abducing goal (0 = 1), which is false.
+[bob] Abducing goal (chop(bob,1) & has_card_rank(bob,1,1)), which is derived from the BB
+[bob] Delta0: []
+[bob] @hintPlayableCard[priority(3),source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (closest_player_with_oldest_playable_unhinted_card(bob,FocusSlot) & has_card_rank(bob,FocusSlot,1))).
+[bob] (available_info_tokens & (closest_player_with_oldest_playable_unhinted_card(bob,FocusSlot) & has_card_rank(bob,FocusSlot,1)))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: available_info_tokens
+[bob]     RHS: (closest_player_with_oldest_playable_unhinted_card(bob,_372) & has_card_rank(bob,_372,1))
+[bob] Delta0: []
+[bob] Abducing goal available_info_tokens, which is derived from the BB
+[bob] Delta0: []
+[bob] Abducing conjunction of goals:
+[bob]     LHS: closest_player_with_oldest_playable_unhinted_card(bob,_391)
+[bob]     RHS: has_card_rank(bob,_391,1)
+[bob] Delta0: []
+[bob] Abducing goal closest_player_with_oldest_playable_unhinted_card(bob,_409), which is not derived from the BB but has relevant rule { closest_player_with_oldest_playable_unhinted_card(_251,_252) :- (closest_player_with_unhinted_playable_card(_251) & oldest_unhinted_playable_slot(_251,_252)) }
+[bob] Delta0: []
+[bob] closest_player_with_oldest_playable_unhinted_card(bob,_429) :- (closest_player_with_unhinted_playable_card(bob) & oldest_unhinted_playable_slot(bob,_429))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: closest_player_with_unhinted_playable_card(bob)
+[bob]     RHS: oldest_unhinted_playable_slot(bob,_430)
+[bob] Delta0: []
+[bob] Abducing goal closest_player_with_unhinted_playable_card(bob), which is not derived from the BB but has relevant rule { closest_player_with_unhinted_playable_card(_207) :- iterate_through_players(1,_207) }
+[bob] Delta0: []
+[bob] Communication error -- internal_action: Casting exception in 'unify_rule_body'

@@ -27,3 +27,7 @@ ready_agents(0).
 @startGame
 +ready_agents(N) : num_players(N)
     <- start_game.
+
+// the game master does not perform abduction since they have access to the
+// complete state of the game
++!kqml_received(KQML_Sender_Var, abduce, Action, KQML_MsgId) : true.

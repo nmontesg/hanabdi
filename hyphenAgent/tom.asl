@@ -9,7 +9,7 @@
 //      * I want to know what bob thinks my perspective is (nesting level 2):
 //              my_name(Me); !adopt_perspective([bob, Me]).
 
-@adopt_perspective[atomic]
+@adoptPerspective[atomic]
 +!adopt_perspective(L) : true
     <- custom.backup_beliefs;
     for ( .member(Next, L) ) {
