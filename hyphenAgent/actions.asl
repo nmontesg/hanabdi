@@ -14,6 +14,8 @@
     .broadcast(abduce, play_card(Slot));
     // process the explicit information conveyed by the action (ordered slots update)
     !process_action(took_card(Slot));
+    // TODO: wait to replace the card until everyone has finished their abductive reasoning
+    // This is because we don't want the percepts to change while abduction is ongoing
     !replace_card(Slot);
     finish_turn.
 
@@ -59,4 +61,4 @@
     // all other players must perform abduction reasoning here, AFTER 
     // processing the explicit information conveyed by the hints
     .broadcast(abduce, give_hint(ToPlayer, rank, Value));
-    finish_turn. 
+    finish_turn.

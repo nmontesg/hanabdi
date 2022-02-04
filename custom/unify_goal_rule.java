@@ -19,20 +19,21 @@ public class unify_goal_rule extends DefaultInternalAction {
 
             // 2. Unify the goal with the head of the rule
             Literal ruleHead = annonRule.getHead();
-            LogExpr ruleBody = (LogExpr)rule.getBody();
+            Literal ruleBody = (Literal)rule.getBody();
             Unifier goalRuleUnif = new Unifier();
             goalRuleUnif.unifies(ruleHead, annonGoal);
 
             // 3. Apply unifier to the head and the body of the rule to build a new one
             Literal newHead = annonRule.headCApply(goalRuleUnif);
-            LogExpr newBody = (LogExpr)ruleBody.capply(goalRuleUnif);
+            Literal newBody = (Literal)ruleBody.capply(goalRuleUnif);
             Rule newRule = new Rule(newHead, newBody);
 
             return un.unifies(newRule, args[2]);
+
         } catch (ClassCastException e) {
-            throw new JasonException("Casting exception in 'unify_rule_body'");
+            throw new JasonException("Casting exception in 'unify_goal_rule'");
         } catch (Exception e) {
-            throw new JasonException("Error in 'unify_rule_body': " + e.toString());
+            throw new JasonException("Error in 'unify_goal_rule': " + e.toString());
         }
     }
     

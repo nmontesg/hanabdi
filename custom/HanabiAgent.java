@@ -9,8 +9,7 @@ import java.util.*;
 public class HanabiAgent extends Agent {
 
     private DefaultBeliefBase backUp = new DefaultBeliefBase();
-    private boolean abductionMode = false;
-    private Stack<Option> abductionStack = new Stack<Option>();
+    private DefaultBeliefBase abducedExpls = new DefaultBeliefBase();
 
     public void backUpBeliefs() throws Exception {
         boolean isBackUpEmpty = (backUp.size() == 0);
@@ -47,39 +46,22 @@ public class HanabiAgent extends Agent {
         }
     }
 
-    public void switchAbductionMode() {
-        if (abductionMode) {
-            // if abduction mode is on and being turned off, empty the abduction stack
-            abductionMode = false;
-        } else {
-            // if abduction mode if being turned on, reset the abduction stack
-            abductionMode = true;
-            abductionStack = new Stack<Option>();
+    public void addExplanation(ListTermImpl list) {
+        // the empty explanation
+        if (list.size() == 0) {
+            Literal conjunction = Literal.parseLiteral("true");
+            abducedExpls.add(conjunction);
+            return;
         }
-    }
 
-    @Override
-    public Option selectOption(List<Option> options) {
-        // TODO: delete this
-        // System.out.println(String.format("there are %d options", options.size()));
-        // not in abduction mode: select the default option
-        if (!abductionMode) {
-            return super.selectOption(options);
-        } else {
-            // if we are in abduction mode, push all the options to the top of the
-            // abduction stack and pop the top of the stack
-            // System.out.println(options.toString());
-            try {
-                Iterator<Option> it = options.iterator();
-                while (it.hasNext()) {
-                    Option opt = it.next();
-                    abductionStack.push(opt);
-                }
-                return abductionStack.pop();
-            } catch (EmptyStackException e) {
-                return null;
-            }
+        LogicalFormula first = (LogicalFormula)list.get(0);
+        Iterator<Term> it = list.iterator();
+        // LogExpr conjunction
+        while (it.hasNext()) {
+
         }
+
+
     }
-    
+       
 }

@@ -14,7 +14,7 @@ MAS hanabdi {
 
     // numplayer, numLives, numInfoTokens, numColors, numRanks, seed
     environment:
-        hanabiEnv.HanabiGame(2, 3, 8, 5, 5, 0)
+        hanabiEnv.HanabiGame(3, 3, 8, 5, 5, 0)
 
     agents:
         game_master;

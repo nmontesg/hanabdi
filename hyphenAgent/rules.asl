@@ -22,6 +22,12 @@ has_critical_card(Player, Slot) :-
     discarded(Color, Rank, D) &
     D = N-1.
 
+has_discardable_card(Player, Slot) :-
+    has_card_color(Player, Slot, Color) &
+    has_card_rank(Player, Slot, Rank) &
+    stack(Color, Stack) &
+    Stack >= Rank.
+
 // difference in turns between myself and another player
 // when the other player is ahead of me
 turns_ahead(Player, N) :-
@@ -52,38 +58,6 @@ oldest_unhinted_slot(Player, [H|_], H) :-
 oldest_unhinted_slot(Player, [H|T], E) :-
     not unhinted(Player, H) &
     oldest_unhinted_slot(Player, T, E).
-
-// find the closest player (in terms of turns ahead) who has a playable
-// card that has not been hinted, and select among all of their card that are
-// playable and are unhinted, the oldest one
-closest_player_with_oldest_playable_unhinted_card(Player, Slot) :-
-    closest_player_with_unhinted_playable_card(Player) &
-    oldest_unhinted_playable_slot(Player, Slot).
-
-has_playable_unhinted_card(Player, Slot) :-
-    has_playable_card(Player, Slot) &
-    unhinted(Player, Slot).
-
-closest_player_with_unhinted_playable_card(Player) :-
-    iterate_through_players(1, Player).
-
-iterate_through_players(N, Player) :-
-    turns_ahead(Player, N) &
-    has_playable_unhinted_card(Player, _).
-iterate_through_players(N, Player) :-
-    turns_ahead(PlayerPrime, N) &
-    not has_playable_unhinted_card(PlayerPrime, _) &
-    iterate_through_players(N+1, Player).
-
-oldest_unhinted_playable_slot(Player, Slot) :-
-    ordered_slots(Player, OrderedSlots) &
-    iterate_through_slots(Player, OrderedSlots, Slot).
-
-iterate_through_slots(Player, [H|_], H) :-
-    has_playable_unhinted_card(Player, H).
-iterate_through_slots(Player, [H|T], E) :-
-    not has_playable_unhinted_card(Player, H) &
-    iterate_through_slots(Player, T, E).
 
 // there are available info token and some are spent (so discard is available)
 available_info_tokens :- num_info_tokens(N) & N > 0.

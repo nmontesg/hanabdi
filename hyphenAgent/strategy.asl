@@ -2,45 +2,140 @@
 // that it is their turn
 
 +player_turn(N) : my_name(Me) & turn_number(Me, N) & N = 1
-    <- .relevant_rules(has_playable_card(bob, S), [Rule|_]);
-    //.print(Rule);
-    /*
-    custom.unify_rule_body(has_playable_card(bob, S), Rule, InstantiatedRule);
-    .print(Rule);
-    .print(InstantiatedRule);
-    */
+    <- //+abduced_messages(0);
     ?select_action(Action);
     .print("I selected the action: ", Action);
-    !Action;
-    .
+    //!play_card(1).
+    !Action.
+
+/*
+@getAbductionReply[atomic]
++finished_abduction : true
+    <- ?abduced_messages(N);
+    -+abduced_messages(N+1).
+
+@finishTurn[atomic]
++abduced_messages(N) : num_players(P) & N = P-1
+    <- .print("received all abduction messages");
+    finish_turn.
+*/
 
 // The pre-defined selection function to choose a plan among those that are
 // applicable chooses according to the order in which plans appear in the
 // plan library. This is good to program the strategic selection of an action
 // to take
 
-@hintCriticalCard[priority(1)]
-+?select_action(give_hint(ToPlayer, rank, Rank)) :
+@hintCriticalCard
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
     available_info_tokens &
-    turns_ahead(ToPlayer, 1) &
-    has_critical_card(ToPlayer, Slot) &
-    chop(ToPlayer, Slot) &
-    has_card_rank(ToPlayer, Slot, Rank).
+    turns_ahead(HintedPlayer, 1) &
+    chop(HintedPlayer, Slot) &
+    has_card_rank(HintedPlayer, Slot, Rank) &
+    has_critical_card(HintedPlayer, Slot).
 
-@playPlayableCard[priority(2)]
+@playPlayableCard
 +?select_action(play_card(Slot)) :
     my_name(Me) & has_playable_card(Me, Slot).
 
-@hintPlayableCard[priority(3)]
+// TODO: custom plan pattern to avoid re-writing almost identical plans
+
+/*
+{begin planloop(hintCriticalCard, t(1, 1, 1), s(1, 5, 1))}
+
++?select_action(give_hint(HintedPlayer, rank, Rank)) : 
+    available_info_tokens &
+    turns_ahead(HintedPlayer, $t) &
+    has_playable_card(HintedPlayer, $s) &
+    unhinted(HintedPlayer, $s) &
+    has_card_rank(HintedPlayer, $s, Rank).
+
+{end}
+*/
+
+@hintPlayableCard1[generic(hintCriticalCard), priority(1)]
 +?select_action(give_hint(HintedPlayer, rank, Rank)) :
     available_info_tokens &
-    closest_player_with_oldest_playable_unhinted_card(HintedPlayer, FocusSlot) &
-    has_card_rank(HintedPlayer, FocusSlot, Rank).
+    turns_ahead(HintedPlayer, 1) &
+    has_playable_card(HintedPlayer, 1) &
+    unhinted(HintedPlayer, 1) &
+    has_card_rank(HintedPlayer, 1, Rank).
 
-@discardMyChopCard[priority(4)]
+@hintPlayableCard2[generic(hintCriticalCard), priority(2)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 1) &
+    has_playable_card(HintedPlayer, 2) &
+    unhinted(HintedPlayer, 2) &
+    has_card_rank(HintedPlayer, 2, Rank).
+
+@hintPlayableCard3[generic(hintCriticalCard), priority(3)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 1) &
+    has_playable_card(HintedPlayer, 3) &
+    unhinted(HintedPlayer, 3) &
+    has_card_rank(HintedPlayer, 3, Rank).
+
+@hintPlayableCard4[generic(hintCriticalCard), priority(4)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 1) &
+    has_playable_card(HintedPlayer, 4) &
+    unhinted(HintedPlayer, 4) &
+    has_card_rank(HintedPlayer, 4, Rank).
+
+@hintPlayableCard5[generic(hintCriticalCard), priority(5)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 1) &
+    has_playable_card(HintedPlayer, 5) &
+    unhinted(HintedPlayer, 5) &
+    has_card_rank(HintedPlayer, 5, Rank).
+
+@hintPlayableCard6[generic(hintCriticalCard), priority(6)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 2) &
+    has_playable_card(HintedPlayer, 1) &
+    unhinted(HintedPlayer, 1) &
+    has_card_rank(HintedPlayer, 1, Rank).
+
+@hintPlayableCard7[generic(hintCriticalCard), priority(7)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 2) &
+    has_playable_card(HintedPlayer, 2) &
+    unhinted(HintedPlayer, 2) &
+    has_card_rank(HintedPlayer, 2, Rank).
+
+@hintPlayableCard8[generic(hintCriticalCard), priority(8)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 2) &
+    has_playable_card(HintedPlayer, 3) &
+    unhinted(HintedPlayer, 3) &
+    has_card_rank(HintedPlayer, 3, Rank).
+
+@hintPlayableCard9[generic(hintCriticalCard), priority(9)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 2) &
+    has_playable_card(HintedPlayer, 4) &
+    unhinted(HintedPlayer, 4) &
+    has_card_rank(HintedPlayer, 4, Rank).
+
+@hintPlayableCard10[generic(hintCriticalCard), priority(10)]
++?select_action(give_hint(HintedPlayer, rank, Rank)) :
+    available_info_tokens &
+    turns_ahead(HintedPlayer, 2) &
+    has_playable_card(HintedPlayer, 5) &
+    unhinted(HintedPlayer, 5) &
+    has_card_rank(HintedPlayer, 5, Rank).
+
+@discardMyChopCard
 +?select_action(discard_card(Chop)) :
     spent_info_tokens & my_name(Me) & chop(Me, Chop).
 
-@defaultAction[priority(5)]
+@defaultAction
 +?select_action(play_card(Slot)) :
     my_name(Me) & ordered_slots(Me, [Slot|_]).

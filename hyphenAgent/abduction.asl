@@ -11,10 +11,7 @@ abducible(has_card_rank(Me, Slot, Rank)) :-
     not has_card_rank(Me, Slot, _) &
     not ~has_card_rank(Me, Slot, Rank).
 
-// integrity constraints: I think integrty constraints are not necessary
-// because we have already stated that facts are only abducible if the agent
-// know the color (rank) of a slot, and if they do not know for sure that
-// they do not have that color (rank) in the slot.
+// integrity constraints
 
 ic :-
     player(P) & slot(S) & color(C1) & color(C2) & C1 \== C2 &
@@ -35,63 +32,83 @@ ic :-
 // abduction
 @kqmlReceivedAbduction[atomic]
 +!kqml_received(KQML_Sender_Var, abduce, Action, KQML_MsgId) : true
-    <- // get the abducible atoms
-    .print("I received the abduce command");
+    <- .print("I received the abduce command");
+    // get the abducible atoms
     .findall(Phi, abducible(Phi), Abducibles);
     !adopt_perspective([KQML_Sender_Var]);
     for ( .member(A, Abducibles) ) { +abducible(A); }
     .findall(Plan, .relevant_plan({+?select_action(Action)}, Plan), LP);
+
     for ( .member(P, LP) ) {
-        custom.switch_abduction_mode;
-        .print(P);
-        custom.get_plan_context(P, Context);
-        .print(Context);
-        !abduce(Context, [], Delta);
+        custom.get_plan_title(P, Title);
+        if ( not abduced(_, _, Title, _) ) {
+            custom.get_plan_context(P, Context);
+            .findall(Delta, abduce(Context, [], Delta), LExpl);
+            //.print(P, "\n", Context, "\n", LExpl, "\n", Title, "\n");
+            .length(LExpl, N);
+            if ( N > 0 ) { +abduced(Action, KQML_Sender_Var, Title, LExpl); }
+        }
+    }
+
+    // save the abduced explanations in a list and recover my original BB
+    .findall(
+        abduced(Action, KQML_Sender_Var, Title, LExpl),
+        abduced(Action, KQML_Sender_Var, Title, LExpl),
+        AllAbd
+    );
+    custom.remove_beliefs;
+    custom.recover_beliefs;   
+    !refine_abduced_explanations(AllAbd).
+
+
+@refineAbducedExplanations[atomic]
++!refine_abduced_explanations(L) : true
+    <- .print(L);
+    for ( .member(abduced(_, _, _, LExpl), L) ) {
+        for ( .member(Exp, LExpl) ) {
+            .print(Exp);
+            // Check if the explanation is compatible with the integrity constraints
+            for ( .member(Fact, Exp) ) { +Fact; }
+            if ( ic ) {
+                .print("Explanation ", Exp, " is inconsistent with the ICs");
+                true;
+            } else {
+                .print("Explanation ", Exp, " is OK");
+            }
+            for ( .member(Fact, Exp) ) { -Fact; }
+        }
     }.
 
-@abduction1[atomic]
-+!abduce(Goal1 & Goal2, Delta0, Delta) : true
-    <- .print("Abducing conjunction of goals:");
-    .print("    LHS: ", Goal1);
-    .print("    RHS: ", Goal2);
-    .print("Delta0: ", Delta0);
-    !abduce(Goal1, Delta0, Delta1);
-    !abduce(Goal2, Delta1, Delta). 
+// NOTE important difference:
+// If LExpl --> [ [] ], it means that the plan being considered (that would result
+// in selecting the observed action) is consistent with the current BB (aka the
+// one that has been adopted by taking the perspective of the other agent).
+// However, it does not provide any additional information.
+// 
+// If LExpl --> [], it means that the plan being considered is not compatible
+// with the BB (from the perspective of the other), and hence it could not
+// have been selected in the first place.
 
-@abduction2[atomic, all_unifs]
-+!abduce(Goal, Delta, Delta) : Goal
-    <- .print("Abducing goal ", Goal, ", which is derived from the BB");
-    .print("Delta0: ", Delta).
+abduce(Goal1 & Goal2, Delta0, Delta) :-
+    custom.conjunction(Goal1 & Goal2) &
+    abduce(Goal1, Delta0, Delta1) &
+    abduce(Goal2, Delta1, Delta).
 
-@abduction3[atomic, all_unifs]
-+!abduce(Goal, Delta, Delta) : abducible(Goal) & .member(Goal, Delta)
-    <- .print("Abducing goal ", Goal, ", which has already been abduced");
-    .print("Delta: ", Delta).
+abduce(Goal, Delta, Delta) :-
+    not custom.conjunction(Goal) & Goal.
 
-@abduction4[atomic, all_unifs]
-+!abduce(Goal, Delta, [Goal|Delta]) : abducible(Goal) & not .member(Goal, Delta)
-    <- .print("Abducing goal ", Goal, ", which is an abducible atom");
-    .print("Delta0: ", Delta, " --> Delta: ", [Goal|Delta]).
+abduce(Goal, Delta, Delta) :-
+    not custom.conjunction(Goal) & not Goal &
+    abducible(Goal) & .member(Goal, Delta).
 
-@abduction5[atomic, all_unifs]
-+!abduce(Goal, Delta0, Delta) : not Goal & .relevant_rules(Goal, LR) & .member(Rule, LR)
-    <- .print("Abducing goal ", Goal, ", which is not derived from the BB but has relevant rule ", Rule);
-    .print("Delta0: ", Delta0);
-    // The retrieved relevant rule has to be transformed so as to have variables
-    // instantiated to the head and the goal
-    custom.unify_rule_body(Goal, Rule, UnifRule);
-    custom.get_rule_body(UnifRule, Body);
-    .print(UnifRule);
-    !abduce(Body, Delta0, Delta).
+abduce(Goal, Delta, [Goal|Delta]) :-
+    not custom.conjunction(Goal) & not Goal &
+    abducible(Goal) & not .member(Goal, Delta).
 
-@abduction6[atomic, all_unifs]
-+!abduce(Goal, _, []) : .ground(Goal) & not Goal
-    <- .print("Abducing goal ", Goal, ", which is false.").
-
-// This should change a little bit:
-// if there are still applicable plans to prove a goal, try them
-// if there are no more plans to prove a goal, drop it
-/*
--!abduce(Goal, Delta0, Delta) : true
-    <- .print("catching failure of goal ", Goal).
-*/
+abduce(Goal, Delta0, Delta) :-
+    not custom.conjunction(Goal) & not Goal & not abducible(Goal) &
+    .relevant_rules(Goal, RL) & .length(RL, N) & N > 0 &
+    .member(R, RL) &
+    custom.unify_goal_rule(Goal, R, UnifiedR) & 
+    custom.get_rule_body(UnifiedR, Body) &
+    abduce(Body, Delta0, Delta).

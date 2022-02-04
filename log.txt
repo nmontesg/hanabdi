@@ -11,74 +11,1100 @@ run:
 Running project hanabdi
 Jason Http Server running on http://127.0.1.1:3272
 [alice] I selected the action: give_hint(bob,rank,1)
-[bob] I received the abduce command
-[bob] @hintCriticalCard[priority(1),source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (has_critical_card(bob,Slot) & (chop(bob,Slot) & has_card_rank(bob,Slot,1))))).
-[bob] (available_info_tokens & (turns_ahead(bob,1) & (has_critical_card(bob,Slot) & (chop(bob,Slot) & has_card_rank(bob,Slot,1)))))
+[bob] @hintCriticalCard[source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (chop(bob,Slot) & (has_card_rank(bob,Slot,1) & has_critical_card(bob,Slot))))).
+[bob] (available_info_tokens & (turns_ahead(bob,1) & (chop(bob,Slot) & (has_card_rank(bob,Slot,1) & has_critical_card(bob,Slot)))))
 [bob] Abducing conjunction of goals:
 [bob]     LHS: available_info_tokens
-[bob]     RHS: (turns_ahead(bob,1) & (has_critical_card(bob,_274) & (chop(bob,_274) & has_card_rank(bob,_274,1))))
-[bob] Delta0: []
-[bob] Abducing goal available_info_tokens, which is derived from the BB
-[bob] Delta0: []
+[bob]     RHS: (turns_ahead(bob,1) & (chop(bob,_259) & (has_card_rank(bob,_259,1) & has_critical_card(bob,_259))))
+[bob] 
+
+[bob] available_info_tokens is derived from the BB
+
 [bob] Abducing conjunction of goals:
 [bob]     LHS: turns_ahead(bob,1)
-[bob]     RHS: (has_critical_card(bob,_281) & (chop(bob,_281) & has_card_rank(bob,_281,1)))
-[bob] Delta0: []
-[bob] Abducing goal turns_ahead(bob,1), which is derived from the BB
-[bob] Delta0: []
+[bob]     RHS: (chop(bob,_262) & (has_card_rank(bob,_262,1) & has_critical_card(bob,_262)))
+[bob] 
+
+[bob] turns_ahead(bob,1) is derived from the BB
+
 [bob] Abducing conjunction of goals:
-[bob]     LHS: has_critical_card(bob,_288)
-[bob]     RHS: (chop(bob,_288) & has_card_rank(bob,_288,1))
-[bob] Delta0: []
-[bob] Abducing goal has_critical_card(bob,_294), which is not derived from the BB but has relevant rule { has_critical_card(_210,_211) :- (has_card_color(_210,_211,_212) & (has_card_rank(_210,_211,_213) & (cards_per_rank(_213,_214) & (discarded(_212,_213,_215) & (_215 = (_214-1)))))) }
-[bob] Delta0: []
-[bob] has_critical_card(bob,_302) :- (has_card_color(bob,_302,_303) & (has_card_rank(bob,_302,_304) & (cards_per_rank(_304,_305) & (discarded(_303,_304,_306) & (_306 = (_305-1))))))
+[bob]     LHS: chop(bob,_265)
+[bob]     RHS: (has_card_rank(bob,_265,1) & has_critical_card(bob,_265))
+[bob] 
+
+[bob] chop(bob,1) is derived from the BB
+
 [bob] Abducing conjunction of goals:
-[bob]     LHS: has_card_color(bob,_307,_308)
-[bob]     RHS: (has_card_rank(bob,_307,_309) & (cards_per_rank(_309,_310) & (discarded(_308,_309,_311) & (_311 = (_310-1)))))
-[bob] Delta0: []
-[bob] Abducing goal has_card_color(bob,2,white), which is an abducible atom
-[bob] Delta0: [] --> Delta: [has_card_color(bob,2,white)]
+[bob]     LHS: has_card_rank(bob,1,1)
+[bob]     RHS: has_critical_card(bob,1)
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] has_critical_card(bob,1) is not derived from the BB nor abducible. However it has relevant rules:
+[bob] [{ has_critical_card(_144,_145) :- (has_card_color(_144,_145,_146) & (has_card_rank(_144,_145,_147) & (cards_per_rank(_147,_148) & (discarded(_146,_147,_149) & (_149 = (_148-1)))))) }]
+[bob] { has_critical_card(_144,_145) :- (has_card_color(_144,_145,_146) & (has_card_rank(_144,_145,_147) & (cards_per_rank(_147,_148) & (discarded(_146,_147,_149) & (_149 = (_148-1)))))) }
+[bob] has_critical_card(bob,1) :- (has_card_color(bob,1,_282) & (has_card_rank(bob,1,_283) & (cards_per_rank(_283,_284) & (discarded(_282,_283,_285) & (_285 = (_284-1))))))
+[bob] (has_card_color(bob,1,_282) & (has_card_rank(bob,1,_283) & (cards_per_rank(_283,_284) & (discarded(_282,_283,_285) & (_285 = (_284-1))))))
+[bob] 
+
 [bob] Abducing conjunction of goals:
-[bob]     LHS: has_card_rank(bob,2,_330)
-[bob]     RHS: (cards_per_rank(_330,_331) & (discarded(white,_330,_332) & (_332 = (_331-1))))
-[bob] Delta0: [has_card_color(bob,2,white)]
-[bob] Abducing goal has_card_rank(bob,2,3), which is an abducible atom
-[bob] Delta0: [has_card_color(bob,2,white)] --> Delta: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
+[bob]     LHS: has_card_color(bob,1,_286)
+[bob]     RHS: (has_card_rank(bob,1,_287) & (cards_per_rank(_287,_288) & (discarded(_286,_287,_289) & (_289 = (_288-1)))))
+[bob] 
+
+[bob] has_card_color(bob,1,red) is an abducible atom --> Add it to the explanation
+
 [bob] Abducing conjunction of goals:
-[bob]     LHS: cards_per_rank(3,_344)
-[bob]     RHS: (discarded(white,3,_345) & (_345 = (_344-1)))
-[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
-[bob] Abducing goal cards_per_rank(3,2), which is derived from the BB
-[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
+[bob]     LHS: has_card_rank(bob,1,_293)
+[bob]     RHS: (cards_per_rank(_293,_294) & (discarded(red,_293,_295) & (_295 = (_294-1))))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
 [bob] Abducing conjunction of goals:
-[bob]     LHS: discarded(white,3,_355)
-[bob]     RHS: (_355 = 1)
-[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
-[bob] Abducing goal discarded(white,3,0), which is derived from the BB
-[bob] Delta0: [has_card_rank(bob,2,3),has_card_color(bob,2,white)]
-[bob] Abducing goal (0 = 1), which is false.
-[bob] Abducing goal (chop(bob,1) & has_card_rank(bob,1,1)), which is derived from the BB
-[bob] Delta0: []
-[bob] @hintPlayableCard[priority(3),source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (closest_player_with_oldest_playable_unhinted_card(bob,FocusSlot) & has_card_rank(bob,FocusSlot,1))).
-[bob] (available_info_tokens & (closest_player_with_oldest_playable_unhinted_card(bob,FocusSlot) & has_card_rank(bob,FocusSlot,1)))
+[bob]     LHS: cards_per_rank(1,_299)
+[bob]     RHS: (discarded(red,1,_300) & (_300 = (_299-1)))
+[bob] 
+
+[bob] cards_per_rank(1,3) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: discarded(red,1,_304)
+[bob]     RHS: (_304 = 2)
+[bob] 
+
+[bob] discarded(red,1,0) is derived from the BB
+
+[bob] has_card_color(bob,1,blue) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_309)
+[bob]     RHS: (cards_per_rank(_309,_310) & (discarded(blue,_309,_311) & (_311 = (_310-1))))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: cards_per_rank(1,_315)
+[bob]     RHS: (discarded(blue,1,_316) & (_316 = (_315-1)))
+[bob] 
+
+[bob] cards_per_rank(1,3) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: discarded(blue,1,_320)
+[bob]     RHS: (_320 = 2)
+[bob] 
+
+[bob] discarded(blue,1,0) is derived from the BB
+
+[bob] has_card_color(bob,1,green) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_325)
+[bob]     RHS: (cards_per_rank(_325,_326) & (discarded(green,_325,_327) & (_327 = (_326-1))))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: cards_per_rank(1,_331)
+[bob]     RHS: (discarded(green,1,_332) & (_332 = (_331-1)))
+[bob] 
+
+[bob] cards_per_rank(1,3) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: discarded(green,1,_336)
+[bob]     RHS: (_336 = 2)
+[bob] 
+
+[bob] discarded(green,1,0) is derived from the BB
+
+[bob] has_card_color(bob,1,yellow) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_341)
+[bob]     RHS: (cards_per_rank(_341,_342) & (discarded(yellow,_341,_343) & (_343 = (_342-1))))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: cards_per_rank(1,_347)
+[bob]     RHS: (discarded(yellow,1,_348) & (_348 = (_347-1)))
+[bob] 
+
+[bob] cards_per_rank(1,3) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: discarded(yellow,1,_352)
+[bob]     RHS: (_352 = 2)
+[bob] 
+
+[bob] discarded(yellow,1,0) is derived from the BB
+
+[bob] has_card_color(bob,1,white) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_357)
+[bob]     RHS: (cards_per_rank(_357,_358) & (discarded(white,_357,_359) & (_359 = (_358-1))))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: cards_per_rank(1,_363)
+[bob]     RHS: (discarded(white,1,_364) & (_364 = (_363-1)))
+[bob] 
+
+[bob] cards_per_rank(1,3) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: discarded(white,1,_368)
+[bob]     RHS: (_368 = 2)
+[bob] 
+
+[bob] discarded(white,1,0) is derived from the BB
+
+[bob] @hintPlayableCard1[source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,1) & (unhinted(bob,1) & has_card_rank(bob,1,1))))).
+[bob] (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,1) & (unhinted(bob,1) & has_card_rank(bob,1,1)))))
 [bob] Abducing conjunction of goals:
 [bob]     LHS: available_info_tokens
-[bob]     RHS: (closest_player_with_oldest_playable_unhinted_card(bob,_372) & has_card_rank(bob,_372,1))
-[bob] Delta0: []
-[bob] Abducing goal available_info_tokens, which is derived from the BB
-[bob] Delta0: []
+[bob]     RHS: (turns_ahead(bob,1) & (has_playable_card(bob,1) & (unhinted(bob,1) & has_card_rank(bob,1,1))))
+[bob] 
+
+[bob] available_info_tokens is derived from the BB
+
 [bob] Abducing conjunction of goals:
-[bob]     LHS: closest_player_with_oldest_playable_unhinted_card(bob,_391)
-[bob]     RHS: has_card_rank(bob,_391,1)
-[bob] Delta0: []
-[bob] Abducing goal closest_player_with_oldest_playable_unhinted_card(bob,_409), which is not derived from the BB but has relevant rule { closest_player_with_oldest_playable_unhinted_card(_251,_252) :- (closest_player_with_unhinted_playable_card(_251) & oldest_unhinted_playable_slot(_251,_252)) }
-[bob] Delta0: []
-[bob] closest_player_with_oldest_playable_unhinted_card(bob,_429) :- (closest_player_with_unhinted_playable_card(bob) & oldest_unhinted_playable_slot(bob,_429))
+[bob]     LHS: turns_ahead(bob,1)
+[bob]     RHS: (has_playable_card(bob,1) & (unhinted(bob,1) & has_card_rank(bob,1,1)))
+[bob] 
+
+[bob] turns_ahead(bob,1) is derived from the BB
+
 [bob] Abducing conjunction of goals:
-[bob]     LHS: closest_player_with_unhinted_playable_card(bob)
-[bob]     RHS: oldest_unhinted_playable_slot(bob,_430)
-[bob] Delta0: []
-[bob] Abducing goal closest_player_with_unhinted_playable_card(bob), which is not derived from the BB but has relevant rule { closest_player_with_unhinted_playable_card(_207) :- iterate_through_players(1,_207) }
-[bob] Delta0: []
-[bob] Communication error -- internal_action: Casting exception in 'unify_rule_body'
+[bob]     LHS: has_playable_card(bob,1)
+[bob]     RHS: (unhinted(bob,1) & has_card_rank(bob,1,1))
+[bob] 
+
+[bob] has_playable_card(bob,1) is not derived from the BB nor abducible. However it has relevant rules:
+[bob] [{ has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }]
+[bob] { has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }
+[bob] has_playable_card(bob,1) :- (has_card_color(bob,1,_383) & (has_card_rank(bob,1,_384) & (stack(_383,_385) & (_385 = (_384-1)))))
+[bob] (has_card_color(bob,1,_383) & (has_card_rank(bob,1,_384) & (stack(_383,_385) & (_385 = (_384-1)))))
+[bob] 
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_color(bob,1,_386)
+[bob]     RHS: (has_card_rank(bob,1,_387) & (stack(_386,_388) & (_388 = (_387-1))))
+[bob] 
+
+[bob] has_card_color(bob,1,red) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_392)
+[bob]     RHS: (stack(red,_393) & (_393 = (_392-1)))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_397)
+[bob]     RHS: (_397 = 0)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,1)
+[bob]     RHS: has_card_rank(bob,1,1)
+[bob] 
+
+[bob] unhinted(bob,1) is derived from the BB
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] has_card_color(bob,1,blue) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_405)
+[bob]     RHS: (stack(blue,_406) & (_406 = (_405-1)))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_410)
+[bob]     RHS: (_410 = 0)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,1)
+[bob]     RHS: has_card_rank(bob,1,1)
+[bob] 
+
+[bob] unhinted(bob,1) is derived from the BB
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] has_card_color(bob,1,green) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_418)
+[bob]     RHS: (stack(green,_419) & (_419 = (_418-1)))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_423)
+[bob]     RHS: (_423 = 0)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,1)
+[bob]     RHS: has_card_rank(bob,1,1)
+[bob] 
+
+[bob] unhinted(bob,1) is derived from the BB
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] has_card_color(bob,1,yellow) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_431)
+[bob]     RHS: (stack(yellow,_432) & (_432 = (_431-1)))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_436)
+[bob]     RHS: (_436 = 0)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,1)
+[bob]     RHS: has_card_rank(bob,1,1)
+[bob] 
+
+[bob] unhinted(bob,1) is derived from the BB
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] has_card_color(bob,1,white) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,1,_444)
+[bob]     RHS: (stack(white,_445) & (_445 = (_444-1)))
+[bob] 
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_449)
+[bob]     RHS: (_449 = 0)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,1)
+[bob]     RHS: has_card_rank(bob,1,1)
+[bob] 
+
+[bob] unhinted(bob,1) is derived from the BB
+
+[bob] has_card_rank(bob,1,1) is derived from the BB
+
+[bob] [has_card_color(bob,1,red)]
+[bob] [has_card_color(bob,1,blue)]
+[bob] [has_card_color(bob,1,green)]
+[bob] [has_card_color(bob,1,yellow)]
+[bob] [has_card_color(bob,1,white)]
+[bob] @hintPlayableCard2[source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,2) & (unhinted(bob,2) & has_card_rank(bob,2,1))))).
+[bob] (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,2) & (unhinted(bob,2) & has_card_rank(bob,2,1)))))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: available_info_tokens
+[bob]     RHS: (turns_ahead(bob,1) & (has_playable_card(bob,2) & (unhinted(bob,2) & has_card_rank(bob,2,1))))
+[bob] 
+
+[bob] available_info_tokens is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: turns_ahead(bob,1)
+[bob]     RHS: (has_playable_card(bob,2) & (unhinted(bob,2) & has_card_rank(bob,2,1)))
+[bob] 
+
+[bob] turns_ahead(bob,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_playable_card(bob,2)
+[bob]     RHS: (unhinted(bob,2) & has_card_rank(bob,2,1))
+[bob] 
+
+[bob] has_playable_card(bob,2) is not derived from the BB nor abducible. However it has relevant rules:
+[bob] [{ has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }]
+[bob] { has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }
+[bob] has_playable_card(bob,2) :- (has_card_color(bob,2,_467) & (has_card_rank(bob,2,_468) & (stack(_467,_469) & (_469 = (_468-1)))))
+[bob] (has_card_color(bob,2,_467) & (has_card_rank(bob,2,_468) & (stack(_467,_469) & (_469 = (_468-1)))))
+[bob] 
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_color(bob,2,_470)
+[bob]     RHS: (has_card_rank(bob,2,_471) & (stack(_470,_472) & (_472 = (_471-1))))
+[bob] 
+
+[bob] has_card_color(bob,2,red) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,2,_476)
+[bob]     RHS: (stack(red,_477) & (_477 = (_476-1)))
+[bob] 
+
+[bob] has_card_rank(bob,2,4) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_481)
+[bob]     RHS: (_481 = 3)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,5) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_486)
+[bob]     RHS: (_486 = 4)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,2) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_491)
+[bob]     RHS: (_491 = 1)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,3) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_496)
+[bob]     RHS: (_496 = 2)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] has_card_color(bob,2,blue) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,2,_503)
+[bob]     RHS: (stack(blue,_504) & (_504 = (_503-1)))
+[bob] 
+
+[bob] has_card_rank(bob,2,4) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_508)
+[bob]     RHS: (_508 = 3)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,5) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_513)
+[bob]     RHS: (_513 = 4)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,2) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_518)
+[bob]     RHS: (_518 = 1)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,3) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_523)
+[bob]     RHS: (_523 = 2)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] has_card_color(bob,2,green) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,2,_530)
+[bob]     RHS: (stack(green,_531) & (_531 = (_530-1)))
+[bob] 
+
+[bob] has_card_rank(bob,2,4) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_535)
+[bob]     RHS: (_535 = 3)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,5) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_540)
+[bob]     RHS: (_540 = 4)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,2) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_545)
+[bob]     RHS: (_545 = 1)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,3) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_550)
+[bob]     RHS: (_550 = 2)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] has_card_color(bob,2,yellow) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,2,_557)
+[bob]     RHS: (stack(yellow,_558) & (_558 = (_557-1)))
+[bob] 
+
+[bob] has_card_rank(bob,2,4) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_562)
+[bob]     RHS: (_562 = 3)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,5) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_567)
+[bob]     RHS: (_567 = 4)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,2) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_572)
+[bob]     RHS: (_572 = 1)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,3) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_577)
+[bob]     RHS: (_577 = 2)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] has_card_color(bob,2,white) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,2,_584)
+[bob]     RHS: (stack(white,_585) & (_585 = (_584-1)))
+[bob] 
+
+[bob] has_card_rank(bob,2,4) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_589)
+[bob]     RHS: (_589 = 3)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,5) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_594)
+[bob]     RHS: (_594 = 4)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,2) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_599)
+[bob]     RHS: (_599 = 1)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] has_card_rank(bob,2,3) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_604)
+[bob]     RHS: (_604 = 2)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] @hintPlayableCard3[source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,3) & (unhinted(bob,3) & has_card_rank(bob,3,1))))).
+[bob] (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,3) & (unhinted(bob,3) & has_card_rank(bob,3,1)))))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: available_info_tokens
+[bob]     RHS: (turns_ahead(bob,1) & (has_playable_card(bob,3) & (unhinted(bob,3) & has_card_rank(bob,3,1))))
+[bob] 
+
+[bob] available_info_tokens is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: turns_ahead(bob,1)
+[bob]     RHS: (has_playable_card(bob,3) & (unhinted(bob,3) & has_card_rank(bob,3,1)))
+[bob] 
+
+[bob] turns_ahead(bob,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_playable_card(bob,3)
+[bob]     RHS: (unhinted(bob,3) & has_card_rank(bob,3,1))
+[bob] 
+
+[bob] has_playable_card(bob,3) is not derived from the BB nor abducible. However it has relevant rules:
+[bob] [{ has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }]
+[bob] { has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }
+[bob] has_playable_card(bob,3) :- (has_card_color(bob,3,_621) & (has_card_rank(bob,3,_622) & (stack(_621,_623) & (_623 = (_622-1)))))
+[bob] (has_card_color(bob,3,_621) & (has_card_rank(bob,3,_622) & (stack(_621,_623) & (_623 = (_622-1)))))
+[bob] 
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_color(bob,3,_624)
+[bob]     RHS: (has_card_rank(bob,3,_625) & (stack(_624,_626) & (_626 = (_625-1))))
+[bob] 
+
+[bob] has_card_color(bob,3,red) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,3,_630)
+[bob]     RHS: (stack(red,_631) & (_631 = (_630-1)))
+[bob] 
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_635)
+[bob]     RHS: (_635 = 0)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,3)
+[bob]     RHS: has_card_rank(bob,3,1)
+[bob] 
+
+[bob] unhinted(bob,3) is derived from the BB
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] has_card_color(bob,3,blue) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,3,_643)
+[bob]     RHS: (stack(blue,_644) & (_644 = (_643-1)))
+[bob] 
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_648)
+[bob]     RHS: (_648 = 0)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,3)
+[bob]     RHS: has_card_rank(bob,3,1)
+[bob] 
+
+[bob] unhinted(bob,3) is derived from the BB
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] has_card_color(bob,3,green) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,3,_656)
+[bob]     RHS: (stack(green,_657) & (_657 = (_656-1)))
+[bob] 
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_661)
+[bob]     RHS: (_661 = 0)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,3)
+[bob]     RHS: has_card_rank(bob,3,1)
+[bob] 
+
+[bob] unhinted(bob,3) is derived from the BB
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] has_card_color(bob,3,yellow) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,3,_669)
+[bob]     RHS: (stack(yellow,_670) & (_670 = (_669-1)))
+[bob] 
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_674)
+[bob]     RHS: (_674 = 0)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,3)
+[bob]     RHS: has_card_rank(bob,3,1)
+[bob] 
+
+[bob] unhinted(bob,3) is derived from the BB
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] has_card_color(bob,3,white) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,3,_682)
+[bob]     RHS: (stack(white,_683) & (_683 = (_682-1)))
+[bob] 
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_687)
+[bob]     RHS: (_687 = 0)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,3)
+[bob]     RHS: has_card_rank(bob,3,1)
+[bob] 
+
+[bob] unhinted(bob,3) is derived from the BB
+
+[bob] has_card_rank(bob,3,1) is derived from the BB
+
+[bob] [has_card_color(bob,3,red)]
+[bob] [has_card_color(bob,3,blue)]
+[bob] [has_card_color(bob,3,green)]
+[bob] [has_card_color(bob,3,yellow)]
+[bob] [has_card_color(bob,3,white)]
+[bob] @hintPlayableCard4[source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,4) & (unhinted(bob,4) & has_card_rank(bob,4,1))))).
+[bob] (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,4) & (unhinted(bob,4) & has_card_rank(bob,4,1)))))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: available_info_tokens
+[bob]     RHS: (turns_ahead(bob,1) & (has_playable_card(bob,4) & (unhinted(bob,4) & has_card_rank(bob,4,1))))
+[bob] 
+
+[bob] available_info_tokens is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: turns_ahead(bob,1)
+[bob]     RHS: (has_playable_card(bob,4) & (unhinted(bob,4) & has_card_rank(bob,4,1)))
+[bob] 
+
+[bob] turns_ahead(bob,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_playable_card(bob,4)
+[bob]     RHS: (unhinted(bob,4) & has_card_rank(bob,4,1))
+[bob] 
+
+[bob] has_playable_card(bob,4) is not derived from the BB nor abducible. However it has relevant rules:
+[bob] [{ has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }]
+[bob] { has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }
+[bob] has_playable_card(bob,4) :- (has_card_color(bob,4,_705) & (has_card_rank(bob,4,_706) & (stack(_705,_707) & (_707 = (_706-1)))))
+[bob] (has_card_color(bob,4,_705) & (has_card_rank(bob,4,_706) & (stack(_705,_707) & (_707 = (_706-1)))))
+[bob] 
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_color(bob,4,_708)
+[bob]     RHS: (has_card_rank(bob,4,_709) & (stack(_708,_710) & (_710 = (_709-1))))
+[bob] 
+
+[bob] has_card_color(bob,4,red) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,4,_714)
+[bob]     RHS: (stack(red,_715) & (_715 = (_714-1)))
+[bob] 
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_719)
+[bob]     RHS: (_719 = 0)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,4)
+[bob]     RHS: has_card_rank(bob,4,1)
+[bob] 
+
+[bob] unhinted(bob,4) is derived from the BB
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] has_card_color(bob,4,blue) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,4,_727)
+[bob]     RHS: (stack(blue,_728) & (_728 = (_727-1)))
+[bob] 
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_732)
+[bob]     RHS: (_732 = 0)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,4)
+[bob]     RHS: has_card_rank(bob,4,1)
+[bob] 
+
+[bob] unhinted(bob,4) is derived from the BB
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] has_card_color(bob,4,green) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,4,_740)
+[bob]     RHS: (stack(green,_741) & (_741 = (_740-1)))
+[bob] 
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_745)
+[bob]     RHS: (_745 = 0)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,4)
+[bob]     RHS: has_card_rank(bob,4,1)
+[bob] 
+
+[bob] unhinted(bob,4) is derived from the BB
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] has_card_color(bob,4,yellow) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,4,_753)
+[bob]     RHS: (stack(yellow,_754) & (_754 = (_753-1)))
+[bob] 
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_758)
+[bob]     RHS: (_758 = 0)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,4)
+[bob]     RHS: has_card_rank(bob,4,1)
+[bob] 
+
+[bob] unhinted(bob,4) is derived from the BB
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] has_card_color(bob,4,white) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,4,_766)
+[bob]     RHS: (stack(white,_767) & (_767 = (_766-1)))
+[bob] 
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_771)
+[bob]     RHS: (_771 = 0)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,4)
+[bob]     RHS: has_card_rank(bob,4,1)
+[bob] 
+
+[bob] unhinted(bob,4) is derived from the BB
+
+[bob] has_card_rank(bob,4,1) is derived from the BB
+
+[bob] [has_card_color(bob,4,red)]
+[bob] [has_card_color(bob,4,blue)]
+[bob] [has_card_color(bob,4,green)]
+[bob] [has_card_color(bob,4,yellow)]
+[bob] [has_card_color(bob,4,white)]
+[bob] @hintPlayableCard5[source(self),url("file:hyphenAgent/strategy.asl")] +?select_action(give_hint(bob,rank,1)) : (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,5) & (unhinted(bob,5) & has_card_rank(bob,5,1))))).
+[bob] (available_info_tokens & (turns_ahead(bob,1) & (has_playable_card(bob,5) & (unhinted(bob,5) & has_card_rank(bob,5,1)))))
+[bob] Abducing conjunction of goals:
+[bob]     LHS: available_info_tokens
+[bob]     RHS: (turns_ahead(bob,1) & (has_playable_card(bob,5) & (unhinted(bob,5) & has_card_rank(bob,5,1))))
+[bob] 
+
+[bob] available_info_tokens is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: turns_ahead(bob,1)
+[bob]     RHS: (has_playable_card(bob,5) & (unhinted(bob,5) & has_card_rank(bob,5,1)))
+[bob] 
+
+[bob] turns_ahead(bob,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_playable_card(bob,5)
+[bob]     RHS: (unhinted(bob,5) & has_card_rank(bob,5,1))
+[bob] 
+
+[bob] has_playable_card(bob,5) is not derived from the BB nor abducible. However it has relevant rules:
+[bob] [{ has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }]
+[bob] { has_playable_card(_139,_140) :- (has_card_color(_139,_140,_141) & (has_card_rank(_139,_140,_142) & (stack(_141,_143) & (_143 = (_142-1))))) }
+[bob] has_playable_card(bob,5) :- (has_card_color(bob,5,_789) & (has_card_rank(bob,5,_790) & (stack(_789,_791) & (_791 = (_790-1)))))
+[bob] (has_card_color(bob,5,_789) & (has_card_rank(bob,5,_790) & (stack(_789,_791) & (_791 = (_790-1)))))
+[bob] 
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_color(bob,5,_792)
+[bob]     RHS: (has_card_rank(bob,5,_793) & (stack(_792,_794) & (_794 = (_793-1))))
+[bob] 
+
+[bob] has_card_color(bob,5,red) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,5,_798)
+[bob]     RHS: (stack(red,_799) & (_799 = (_798-1)))
+[bob] 
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(red,_803)
+[bob]     RHS: (_803 = 0)
+[bob] 
+
+[bob] stack(red,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,5)
+[bob]     RHS: has_card_rank(bob,5,1)
+[bob] 
+
+[bob] unhinted(bob,5) is derived from the BB
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] has_card_color(bob,5,blue) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,5,_811)
+[bob]     RHS: (stack(blue,_812) & (_812 = (_811-1)))
+[bob] 
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(blue,_816)
+[bob]     RHS: (_816 = 0)
+[bob] 
+
+[bob] stack(blue,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,5)
+[bob]     RHS: has_card_rank(bob,5,1)
+[bob] 
+
+[bob] unhinted(bob,5) is derived from the BB
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] has_card_color(bob,5,green) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,5,_824)
+[bob]     RHS: (stack(green,_825) & (_825 = (_824-1)))
+[bob] 
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(green,_829)
+[bob]     RHS: (_829 = 0)
+[bob] 
+
+[bob] stack(green,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,5)
+[bob]     RHS: has_card_rank(bob,5,1)
+[bob] 
+
+[bob] unhinted(bob,5) is derived from the BB
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] has_card_color(bob,5,yellow) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,5,_837)
+[bob]     RHS: (stack(yellow,_838) & (_838 = (_837-1)))
+[bob] 
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(yellow,_842)
+[bob]     RHS: (_842 = 0)
+[bob] 
+
+[bob] stack(yellow,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,5)
+[bob]     RHS: has_card_rank(bob,5,1)
+[bob] 
+
+[bob] unhinted(bob,5) is derived from the BB
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] has_card_color(bob,5,white) is an abducible atom --> Add it to the explanation
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: has_card_rank(bob,5,_850)
+[bob]     RHS: (stack(white,_851) & (_851 = (_850-1)))
+[bob] 
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: stack(white,_855)
+[bob]     RHS: (_855 = 0)
+[bob] 
+
+[bob] stack(white,0) is derived from the BB
+
+[bob] (0 = 0) is derived from the BB
+
+[bob] Abducing conjunction of goals:
+[bob]     LHS: unhinted(bob,5)
+[bob]     RHS: has_card_rank(bob,5,1)
+[bob] 
+
+[bob] unhinted(bob,5) is derived from the BB
+
+[bob] has_card_rank(bob,5,1) is derived from the BB
+
+[bob] [has_card_color(bob,5,red)]
+[bob] [has_card_color(bob,5,blue)]
+[bob] [has_card_color(bob,5,green)]
+[bob] [has_card_color(bob,5,yellow)]
+[bob] [has_card_color(bob,5,white)]
