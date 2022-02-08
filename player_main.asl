@@ -1,5 +1,4 @@
 { include("hyphenAgent/actions.asl") }
-{ include("hyphenAgent/explicit.asl") }
 { include("hyphenAgent/tom.asl") }
 { include("hyphenAgent/rules.asl") }
 { include("hyphenAgent/strategy.asl") }
