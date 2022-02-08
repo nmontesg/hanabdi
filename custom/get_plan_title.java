@@ -15,7 +15,7 @@ public class get_plan_title extends DefaultInternalAction {
             Literal title = Literal.parseLiteral(titleStr);
             return un.unifies(title, args[1]);
         } catch (Exception e) {
-            throw new JasonException("Error in 'backup_beliefs': " + e.toString());
+            throw new JasonException("Error in 'get_plan_title': " + e.toString());
         }
     }
     

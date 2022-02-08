@@ -9,7 +9,6 @@ import java.util.*;
 public class HanabiAgent extends Agent {
 
     private DefaultBeliefBase backUp = new DefaultBeliefBase();
-    private DefaultBeliefBase abducedExpls = new DefaultBeliefBase();
 
     public void backUpBeliefs() throws Exception {
         boolean isBackUpEmpty = (backUp.size() == 0);
@@ -44,24 +43,6 @@ public class HanabiAgent extends Agent {
             Literal belief = it.next();
             bb.remove(belief);
         }
-    }
-
-    public void addExplanation(ListTermImpl list) {
-        // the empty explanation
-        if (list.size() == 0) {
-            Literal conjunction = Literal.parseLiteral("true");
-            abducedExpls.add(conjunction);
-            return;
-        }
-
-        LogicalFormula first = (LogicalFormula)list.get(0);
-        Iterator<Term> it = list.iterator();
-        // LogExpr conjunction
-        while (it.hasNext()) {
-
-        }
-
-
     }
        
 }

@@ -1,5 +1,4 @@
-// ABD(T_{i,j,...,k,l}, S, a_l) obtains the set of abducible atoms from 
-// T_{i,j,...,k} \models abducible(F).
+// set of abducible atoms
 
 abducible(has_card_color(Me, Slot, Color)) :-
     my_name(Me) & slot(Slot) & color(Color) &
@@ -11,23 +10,15 @@ abducible(has_card_rank(Me, Slot, Rank)) :-
     not has_card_rank(Me, Slot, _) &
     not ~has_card_rank(Me, Slot, Rank).
 
-// integrity constraints
+// integrity constraint: An agent can only have a card of Color and Rank at any
+// Slot of their holder if the number of cards of that Color and Rank that have
+// been disclosed to the agent everywhere EXCEPT that Slot do not add up to the
+// total number of cards of Rank
 
 ic :-
-    player(P) & slot(S) & color(C1) & color(C2) & C1 \== C2 &
-    has_card_color(P, S, C1) & has_card_color(P, S, C2).
-
-ic :-
-    player(P) & slot(S) & rank(R1) & rank(R2) & R1 \== R2 &
-    has_card_rank(P, S, R1) & has_card_rank(P, S, R2).
-
-ic :-
-    player(P) & slot(S) & color(C) &
-    has_card_color(P, S, C) & ~has_card_color(P, S, C).
-
-ic :-
-    player(P) & slot(S) & rank(R) &
-    has_card_rank(P, S, R) & ~has_card_rank(P, S, R).
+    player(P) & slot(S) & color(C) & rank(R) &
+    has_card_color(P, S, C) & has_card_rank(P, S, R) &
+    disclosed_cards(C, R, P, S, N) & cards_per_rank(R, N).
 
 // abduction
 @kqmlReceivedAbduction[atomic]
@@ -38,18 +29,16 @@ ic :-
     !adopt_perspective([KQML_Sender_Var]);
     for ( .member(A, Abducibles) ) { +abducible(A); }
     .findall(Plan, .relevant_plan({+?select_action(Action)}, Plan), LP);
-
     for ( .member(P, LP) ) {
         custom.get_plan_title(P, Title);
         if ( not abduced(_, _, Title, _) ) {
             custom.get_plan_context(P, Context);
             .findall(Delta, abduce(Context, [], Delta), LExpl);
-            //.print(P, "\n", Context, "\n", LExpl, "\n", Title, "\n");
+            .print(P, "\n\n", Title, "\n\n", Context, "\n\n", LExpl, "\n\n");
             .length(LExpl, N);
             if ( N > 0 ) { +abduced(Action, KQML_Sender_Var, Title, LExpl); }
         }
     }
-
     // save the abduced explanations in a list and recover my original BB
     .findall(
         abduced(Action, KQML_Sender_Var, Title, LExpl),
@@ -63,21 +52,19 @@ ic :-
 
 @refineAbducedExplanations[atomic]
 +!refine_abduced_explanations(L) : true
-    <- .print(L);
-    for ( .member(abduced(_, _, _, LExpl), L) ) {
+    <- for ( .member(abduced(_, _, _, LExpl), L) ) {
         for ( .member(Exp, LExpl) ) {
-            .print(Exp);
             // Check if the explanation is compatible with the integrity constraints
             for ( .member(Fact, Exp) ) { +Fact; }
             if ( ic ) {
                 .print("Explanation ", Exp, " is inconsistent with the ICs");
-                true;
             } else {
                 .print("Explanation ", Exp, " is OK");
             }
             for ( .member(Fact, Exp) ) { -Fact; }
         }
     }.
+    // +explanation(a & b) [source(abduction)].
 
 // NOTE important difference:
 // If LExpl --> [ [] ], it means that the plan being considered (that would result
@@ -110,5 +97,5 @@ abduce(Goal, Delta0, Delta) :-
     .relevant_rules(Goal, RL) & .length(RL, N) & N > 0 &
     .member(R, RL) &
     custom.unify_goal_rule(Goal, R, UnifiedR) & 
-    custom.get_rule_body(UnifiedR, Body) &
+    custom.decompose_rule(UnifiedR, _, Body) &
     abduce(Body, Delta0, Delta).

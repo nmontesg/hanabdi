@@ -62,3 +62,21 @@ oldest_unhinted_slot(Player, [H|T], E) :-
 // there are available info token and some are spent (so discard is available)
 available_info_tokens :- num_info_tokens(N) & N > 0.
 spent_info_tokens :- num_info_tokens(N) & max_info_tokens(Total) & N < Total.
+
+// number of cards that have been disclosed to me EXCEPT the identity of the 
+// card of Player at position Slot
+disclosed_cards(Color, Rank, Player, Slot, N) :-
+    stack(Color, Stack) & Stack < Rank &
+    .findall(
+        has_card(P, S, Color, Rank),
+        has_card_color(P, S, Color) & has_card_rank(P, S, Rank) & P \== Player & S \== Slot,
+        L
+    ) & .length(L, N1) & discarded(Color, Rank, N2) & N = N1 + N2.
+
+disclosed_cards(Color, Rank, Player, Slot, N) :-
+    stack(Color, Stack) & Stack >= Rank &
+    .findall(
+        has_card(P, S, Color, Rank),
+        has_card_color(P, S, Color) & has_card_rank(P, S, Rank) & P \== Player & S \== Slot,
+        L
+    ) & .length(L, N1) & discarded(Color, Rank, N2) & N = N1 + N2 + 1.

@@ -1,12 +1,20 @@
 // generic plan to select and action and perform it when the agent perceives
-// that it is their turn
+// that it is their turn.
+
+// abduction must happen BEFORE the agent performs the action, because all
+// other players have to abduce with the state of the game as it is when
+// the action is selected, i.e. BEFORE it is performed
 
 +player_turn(N) : my_name(Me) & turn_number(Me, N) & N = 1
     <- //+abduced_messages(0);
     ?select_action(Action);
     .print("I selected the action: ", Action);
+    
+    .broadcast(abduce, Action).
+    
+    // TODO: wait for everyone to finish their abductive reasoning
     //!play_card(1).
-    !Action.
+    //!Action.
 
 /*
 @getAbductionReply[atomic]
@@ -25,32 +33,18 @@
 // plan library. This is good to program the strategic selection of an action
 // to take
 
+
 @hintCriticalCard
 +?select_action(give_hint(HintedPlayer, rank, Rank)) :
     available_info_tokens &
     turns_ahead(HintedPlayer, 1) &
     chop(HintedPlayer, Slot) &
-    has_card_rank(HintedPlayer, Slot, Rank) &
-    has_critical_card(HintedPlayer, Slot).
+    has_critical_card(HintedPlayer, Slot) &
+    has_card_rank(HintedPlayer, Slot, Rank).    
 
 @playPlayableCard
 +?select_action(play_card(Slot)) :
     my_name(Me) & has_playable_card(Me, Slot).
-
-// TODO: custom plan pattern to avoid re-writing almost identical plans
-
-/*
-{begin planloop(hintCriticalCard, t(1, 1, 1), s(1, 5, 1))}
-
-+?select_action(give_hint(HintedPlayer, rank, Rank)) : 
-    available_info_tokens &
-    turns_ahead(HintedPlayer, $t) &
-    has_playable_card(HintedPlayer, $s) &
-    unhinted(HintedPlayer, $s) &
-    has_card_rank(HintedPlayer, $s, Rank).
-
-{end}
-*/
 
 @hintPlayableCard1[generic(hintCriticalCard), priority(1)]
 +?select_action(give_hint(HintedPlayer, rank, Rank)) :
