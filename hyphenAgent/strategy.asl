@@ -1,14 +1,15 @@
 // generic plan to select and action and perform it when the agent perceives
 // that it is their turn.
 
-// abduction must happen BEFORE the agent performs the action, because all
-// other players have to abduce with the state of the game as it is when
-// the action is selected, i.e. BEFORE it is performed
+// TODO: dropping the player_turn event when taking the perspective of another
+// might not work when going to higher-order ToM (>1)
 
+@dropEventWhenAbducing[atomic]
 +player_turn(N) : my_name(Name) & .my_name(Me) & Name \== Me
     <- .drop_event(player_turn(N)).
 
-+player_turn(N) : my_name(Me) & turn_number(Me, N)
+@actInTheGame[atomic]
++player_turn(N) : my_name(Name) & .my_name(Me) & Name == Me & turn_number(Me, N)
     <- -+finished_abduction_messages(0);
     ?select_action(Action);
     .print("I selected the action: ", Action);
@@ -19,7 +20,6 @@
 // applicable chooses according to the order in which plans appear in the
 // plan library. This is good to program the strategic selection of an action
 // to take
-
 
 @hintCriticalCard
 +?select_action(give_hint(HintedPlayer, rank, Rank)) :

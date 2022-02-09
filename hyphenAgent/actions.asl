@@ -7,6 +7,10 @@
 // these are procedural plans to take direct action in the game
 // process the explicit information conveyed by the action (ordered slots update)
 
+// abduction must happen BEFORE the agent performs the action, because all
+// other players have to abduce with the state of the game as it is when
+// the action is selected, i.e. BEFORE it is performed
+
 @playCard
 +!play_card(Slot) : true
     <- .broadcast(publicAction, play_card(Slot));
@@ -102,12 +106,6 @@
     -~has_card_color(Player, Slot, _) [hint_id(_), source(hint)];
     -has_card_rank(Player, Slot, _) [hint_id(_), source(hint)];
     -~has_card_rank(Player, Slot, _) [hint_id(_), source(hint)].
-
-
-
-
-
-// wait for a condition to become true
 
 @receiveFinishMessage[atomic]
 +finished_abduction [source(Player)] : true

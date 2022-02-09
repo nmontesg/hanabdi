@@ -97,9 +97,9 @@ abduce(Goal, Delta0, Delta) :-
 +!abduce(Player, Action) : true
     <- // .print("I received the abduce command");
     // get the abducible atoms
-    .findall(Phi, abducible(Phi), Abducibles);
+    // .findall(Phi, abducible(Phi), Abducibles);
     !adopt_perspective([Player]);
-    for ( .member(A, Abducibles) ) { +abducible(A); }
+    // for ( .member(A, Abducibles) ) { +abducible(A); }
     .findall(Plan, .relevant_plan({+?select_action(Action)}, Plan), LP);
     for ( .member(P, LP) ) {
         custom.get_plan_title(P, Title);

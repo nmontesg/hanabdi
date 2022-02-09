@@ -12,21 +12,30 @@
 @adoptPerspective[atomic]
 +!adopt_perspective(L) : true
     <- custom.backup_beliefs;
-    for ( .member(Next, L) ) {
-        .findall(B [Annot], knows(Next, B [Annot]), BList);
+    .length(L, Len);
+    for ( .range(I, 0, Len-2) ) {
+        .nth(I, L, Next);
+        .findall(Phi [Annot], knows(Next, Phi [Annot]), PhiList);
         .relevant_rules(_, AllRules);
         custom.remove_beliefs;
-        for ( .member(Bel [Annot], BList) ) {
-            +Bel [Annot];
-        }
-        for ( .member(Rule, AllRules) ) {
-            // abducible/1 rules should NOT be adopted. They interfere
-            // with the abductive reasoning process
-            custom.decompose_rule(Rule, Head, _);
-            Head =.. [Functor, _, _];
-            if ( Functor \== abducible ) { +Rule [source(self)]; }
-        }
-    }.
+        for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
+        for ( .member(Rule, AllRules) ) { +Rule; }
+    }
+    .nth(Len-1, L, Last);
+    .findall(A, abducible(A), AbdList);
+    .findall(Phi [Annot], knows(Last, Phi [Annot]), PhiList);
+    .relevant_rules(_, AllRules);
+    custom.remove_beliefs;
+    for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
+    for ( .member(Rule, AllRules) ) {
+        // abducible/1 rules should NOT be adopted. They interfere
+        // with the abductive reasoning process
+        custom.decompose_rule(Rule, Head, _);
+        Head =.. [Functor, _, _];
+        if ( Functor \== abducible ) { +Rule [source(self)]; }
+    }
+    for ( .member(A, AbdList) ) { +abducible(A); }.
+
 
 /* -------- First-order Theory of Mind -------- */
 
