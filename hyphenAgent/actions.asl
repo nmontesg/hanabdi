@@ -37,6 +37,11 @@
 +!give_hint(ToPlayer, color, Value) : true
     <- ?hint_id(Id);
     .findall(S, has_card_color(ToPlayer, S, Value) [source(percept)], Slots); 
+    ?cards_per_player(N);
+    for ( .range(S, 1, N) ) {
+        if ( .member(S, Slots) ) { +has_card_color(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
+        else  { +~has_card_color(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
+    }
     .my_name(FromPlayer);
     +hint(Id, FromPlayer, ToPlayer, color, Value, Slots);
     .broadcast(publicAction, hint(Id, FromPlayer, ToPlayer, color, Value, Slots));
@@ -48,7 +53,12 @@
 @giveRankHint
 +!give_hint(ToPlayer, rank, Value) : true
     <- ?hint_id(Id);
-    .findall(S, has_card_rank(ToPlayer, S, Value) [source(percept)], Slots); 
+    .findall(S, has_card_rank(ToPlayer, S, Value) [source(percept)], Slots);
+    ?cards_per_player(N);
+    for ( .range(S, 1, N) ) {
+        if ( .member(S, Slots) ) { +has_card_rank(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
+        else  { +~has_card_rank(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
+    }
     .my_name(FromPlayer);
     +hint(Id, FromPlayer, ToPlayer, rank, Value, Slots);
     .broadcast(publicAction, hint(Id, FromPlayer, ToPlayer, rank, Value, Slots));

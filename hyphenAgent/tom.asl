@@ -12,6 +12,8 @@
 @adoptPerspective[atomic]
 +!adopt_perspective(L) : true
     <- custom.backup_beliefs;
+    // for all the members whose perspective has to be adopted before the last
+    // all the inference rules have to be copied
     .length(L, Len);
     for ( .range(I, 0, Len-2) ) {
         .nth(I, L, Next);
@@ -21,6 +23,10 @@
         for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
         for ( .member(Rule, AllRules) ) { +Rule; }
     }
+    // before the perspective of the last player is adopted, the abducible
+    // atoms have to be retrieved (and later introduced into the BB). Also,
+    // the inference rules to derive abducible atoms should NOT be copied,
+    // as they may interfere with the abductive reasoning process.
     .nth(Len-1, L, Last);
     .findall(A, abducible(A), AbdList);
     .findall(Phi [Annot], knows(Last, Phi [Annot]), PhiList);

@@ -1,8 +1,6 @@
 // The sole purpose of the game_master agent is to create the agents
 // who will act as players in the game
 
-{ include("hyphenAgent/explicit.asl") }
-
 !create_agents.
 ready_agents(0).
 

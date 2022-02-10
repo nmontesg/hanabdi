@@ -1,7 +1,7 @@
 { include("hyphenAgent/actions.asl") }
-{ include("hyphenAgent/tom.asl") }
 { include("hyphenAgent/rules.asl") }
 { include("hyphenAgent/strategy.asl") }
+{ include("hyphenAgent/tom.asl") }
 { include("hyphenAgent/abduction.asl") }
 
 /* ---------- Plan to initialize ordered slots for all players ---------- */

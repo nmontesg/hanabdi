@@ -13,7 +13,6 @@
     <- -+finished_abduction_messages(0);
     ?select_action(Action);
     .print("I selected the action: ", Action);
-    //!play_card(1).
     !Action.
 
 // The pre-defined selection function to choose a plan among those that are
@@ -26,92 +25,19 @@
     available_info_tokens &
     turns_ahead(HintedPlayer, 1) &
     chop(HintedPlayer, Slot) &
-    has_critical_card(HintedPlayer, Slot) &
-    has_card_rank(HintedPlayer, Slot, Rank).    
+    has_card_rank(HintedPlayer, Slot, Rank) &
+    has_critical_card(HintedPlayer, Slot).    
 
 @playPlayableCard
 +?select_action(play_card(Slot)) :
     my_name(Me) & has_playable_card(Me, Slot).
 
-@hintPlayableCard1[generic(hintPlayableCard), priority(1)]
+@hintPlayableCard
 +?select_action(give_hint(HintedPlayer, rank, Rank)) :
     available_info_tokens &
-    turns_ahead(HintedPlayer, 1) &
-    has_playable_card(HintedPlayer, 1) &
-    unhinted(HintedPlayer, 1) &
-    has_card_rank(HintedPlayer, 1, Rank).
-
-@hintPlayableCard2[generic(hintPlayableCard), priority(2)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 1) &
-    has_playable_card(HintedPlayer, 2) &
-    unhinted(HintedPlayer, 2) &
-    has_card_rank(HintedPlayer, 2, Rank).
-
-@hintPlayableCard3[generic(hintPlayableCard), priority(3)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 1) &
-    has_playable_card(HintedPlayer, 3) &
-    unhinted(HintedPlayer, 3) &
-    has_card_rank(HintedPlayer, 3, Rank).
-
-@hintPlayableCard4[generic(hintPlayableCard), priority(4)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 1) &
-    has_playable_card(HintedPlayer, 4) &
-    unhinted(HintedPlayer, 4) &
-    has_card_rank(HintedPlayer, 4, Rank).
-
-@hintPlayableCard5[generic(hintPlayableCard), priority(5)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 1) &
-    has_playable_card(HintedPlayer, 5) &
-    unhinted(HintedPlayer, 5) &
-    has_card_rank(HintedPlayer, 5, Rank).
-
-@hintPlayableCard6[generic(hintPlayableCard), priority(6)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 2) &
-    has_playable_card(HintedPlayer, 1) &
-    unhinted(HintedPlayer, 1) &
-    has_card_rank(HintedPlayer, 1, Rank).
-
-@hintPlayableCard7[generic(hintPlayableCard), priority(7)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 2) &
-    has_playable_card(HintedPlayer, 2) &
-    unhinted(HintedPlayer, 2) &
-    has_card_rank(HintedPlayer, 2, Rank).
-
-@hintPlayableCard8[generic(hintPlayableCard), priority(8)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 2) &
-    has_playable_card(HintedPlayer, 3) &
-    unhinted(HintedPlayer, 3) &
-    has_card_rank(HintedPlayer, 3, Rank).
-
-@hintPlayableCard9[generic(hintPlayableCard), priority(9)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 2) &
-    has_playable_card(HintedPlayer, 4) &
-    unhinted(HintedPlayer, 4) &
-    has_card_rank(HintedPlayer, 4, Rank).
-
-@hintPlayableCard10[generic(hintPlayableCard), priority(10)]
-+?select_action(give_hint(HintedPlayer, rank, Rank)) :
-    available_info_tokens &
-    turns_ahead(HintedPlayer, 2) &
-    has_playable_card(HintedPlayer, 5) &
-    unhinted(HintedPlayer, 5) &
-    has_card_rank(HintedPlayer, 5, Rank).
+    unhinted(HintedPlayer, S) &
+    has_card_rank(HintedPlayer, S, Rank) &
+    has_playable_card(HintedPlayer, S).
 
 @discardMyChopCard
 +?select_action(discard_card(Chop)) :

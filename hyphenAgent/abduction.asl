@@ -11,20 +11,15 @@
 @kqmlReceivedPublicAction3[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, hint(Id, KQML_Sender_Var, ToPlayer, Mode, Value, Slots), KQML_MsgId) : true
     <- +hint(Id, KQML_Sender_Var, ToPlayer, Mode, Value, Slots);
-    // first update explicit informatio conveyed by the hint before abducing
+    // first update explicit information conveyed by the hint before abducing
     .concat("has_card_", Mode, String);
     .term2string(Term, String);
     ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
         Belief =.. [Term, [ToPlayer, S, Value], [source(hint), hint_id(Id)]];
-        if ( .member(S, Slots) ) {
-            +Belief;
-        } else {
-            +(~Belief);
-        }
+        if ( .member(S, Slots) ) { +Belief; } else { +(~Belief); }
     }
     !abduce(KQML_Sender_Var, give_hint(ToPlayer, Mode, Value)).
-
 
 
 /* -------- ABDUCIBLE ATOMS -------- */
@@ -96,45 +91,38 @@ abduce(Goal, Delta0, Delta) :-
 @abduction[atomic]
 +!abduce(Player, Action) : true
     <- // .print("I received the abduce command");
-    // get the abducible atoms
-    // .findall(Phi, abducible(Phi), Abducibles);
     !adopt_perspective([Player]);
-    // for ( .member(A, Abducibles) ) { +abducible(A); }
     .findall(Plan, .relevant_plan({+?select_action(Action)}, Plan), LP);
     for ( .member(P, LP) ) {
-        custom.get_plan_title(P, Title);
-        if ( not abduced(_, _, Title, _) ) {
-            custom.get_plan_context(P, Context);
-            .findall(Delta, abduce(Context, [], Delta), LExpl);
-            .print(P, "\n\n", Title, "\n\n", Context, "\n\n", LExpl, "\n\n");
-            .length(LExpl, N);
-            if ( N > 0 ) { +abduced(Action, Player, Title, LExpl); }
-        }
+        custom.get_plan_context(P, Context);
+        .findall(Delta, abduce(Context, [], Delta), LExpl);
+        //.print(P, "\n\n", Context, "\n\n", LExpl, "\n\n");
+        .length(LExpl, N);
+        for ( .member(Expl, LExpl) ) { +abduced(Expl); }
     }
     // save the abduced explanations in a list and recover my original BB
-    .findall(
-        abduced(Action, Player, Title, LExpl),
-        abduced(Action, Player, Title, LExpl),
-        AllAbd
-    );
+    .findall(E, abduced(E), AllAbdExpl);
     custom.remove_beliefs;
     custom.recover_beliefs;   
-    !refine_abduced_explanations(AllAbd);
+    !refine_abduced_explanations(AllAbdExpl);
     .send(Player, tell, finished_abduction).
 
 
 @refineAbducedExplanations[atomic]
 +!refine_abduced_explanations(L) : true
-    <- .print(L, "\n");
-    for ( .member(abduced(_, _, _, LExpl), L) ) {
-        for ( .member(Exp, LExpl) ) {
-            // Check if the explanation is compatible with the integrity constraints
-            for ( .member(Fact, Exp) ) { +Fact; }
-            if ( ic ) {
-                .print("Explanation ", Exp, " is inconsistent with the ICs");
-            } else {
-                .print("Explanation ", Exp, " is OK");
-            }
-            for ( .member(Fact, Exp) ) { -Fact; }
+    <- // check which explanations are consistent with the ICs
+    for ( .member(Exp, L) ) {
+        // Check if the explanation is compatible with the integrity constraints
+        for ( .member(Fact, Exp) ) { +Fact; }
+        if ( not ic ) {
+            //.print("Explanation ", Exp, " is OK");
+            +abduced_ic(Exp);
+        } else {
+            //.print("Explanation ", Exp, " is inconsistent with the ICs");
         }
-    }.
+        for ( .member(Fact, Exp) ) { -Fact; }
+    }
+    .findall(E, abduced_ic(E), RefExpls);
+    .abolish(abduced_ic(_));
+    custom.list2dnf(RefExpls, DNF);
+    .print("My explanation DNF is: ", DNF).
