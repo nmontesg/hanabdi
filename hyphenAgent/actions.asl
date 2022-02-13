@@ -137,3 +137,10 @@
 +finished_abduction_messages(M)
     : num_players(N) & M == N-1 & .suspended(give_hint(ToPlayer, Mode, Value), _)
     <- .resume(give_hint(ToPlayer, Mode, Value)).
+
+/*
+@resumeAction[atomic]
++finished_abduction_messages(N)
+    : num_players(N) & M == N-1 & .suspended(player_turn(Me), _) & .my_name(Me)
+    <- .resume(player_turn(Me)).
+*/

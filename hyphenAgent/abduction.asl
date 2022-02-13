@@ -1,12 +1,10 @@
 /* -------- PUBLIC ACTIONS -------- */
 
 @kqmlReceivedPublicAction1[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true
-    <- !abduce(KQML_Sender_Var, play_card(Slot)).
++!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true.
 
 @kqmlReceivedPublicAction2[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true
-    <- !abduce(KQML_Sender_Var, discard_card(Slot)).
++!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true.
 
 @kqmlReceivedPublicAction3[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, hint(Id, KQML_Sender_Var, ToPlayer, Mode, Value, Slots), KQML_MsgId) : true
@@ -121,7 +119,8 @@ abduce(Goal, Delta0, Delta) :-
     custom.remove_beliefs;
     custom.recover_beliefs;   
     !refine_abduced_explanations(AllAbdExpl);
-    .send(Player, tell, finished_abduction).
+    .send(Player, tell, finished_abduction);
+    .print("told ", Player, " that I finished abduction").
 
 
 @refineAbducedExplanations[atomic]
@@ -141,6 +140,4 @@ abduce(Goal, Delta0, Delta) :-
     .findall(E, abduced_ic(E), RefExpls);
     .abolish(abduced_ic(_));
     custom.list2dnf(RefExpls, DNF);
-    .print("My explanation DNF is: ", DNF);
-    // +(abduced :- DNF);
-    .
+    .print("My explanation DNF is: ", DNF).

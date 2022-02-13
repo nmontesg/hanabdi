@@ -4,12 +4,6 @@
 // TODO: dropping the player_turn event when taking the perspective of another
 // might not work when going to higher-order ToM (>1)
 
-/*
-@dropEventWhenAbducing[atomic]
-+player_turn(N) : my_name(Name) & .my_name(Me) & Name \== Me
-    <- .drop_event(player_turn(N)).
-*/
-
 @actInTheGame[atomic]
 +player_turn(Me) : .my_name(Me) & turn_number(Me, 1)
     <- -+finished_abduction_messages(0);
