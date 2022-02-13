@@ -199,7 +199,8 @@ public class HanabiGame extends Environment {
 
     private boolean startGame() {
         playerTurn = 1;
-        addPercept(Literal.parseLiteral(String.format("player_turn(%d)", playerTurn)));
+        String movingPlayer = agents.get(playerTurn - 1);
+        addPercept(Literal.parseLiteral(String.format("player_turn(%s)", movingPlayer)));
         return true;
     }
 
@@ -210,7 +211,8 @@ public class HanabiGame extends Environment {
 
         removePerceptsByUnif(Literal.parseLiteral("player_turn(_)"));
         playerTurn = playerTurn % numPlayers + 1;
-        addPercept(Literal.parseLiteral(String.format("player_turn(%d)", playerTurn)));
+        String movingPlayer = agents.get(playerTurn - 1);
+        addPercept(Literal.parseLiteral(String.format("player_turn(%s)", movingPlayer)));
         return true;
     }
 

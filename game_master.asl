@@ -15,16 +15,14 @@ ready_agents(0).
     }
     .broadcast(achieve, get_ready).
 
-// This needs to be atomic so the ready_agents(N) variable is updated
-// correctly
+// This needs to be atomic so the ready_agents(N) variable is updated correctly
 @getReadyReply[atomic]
 +ready : true
     <- ?ready_agents(N);
     -+ready_agents(N+1).
 
 @startGame
-+ready_agents(N) : num_players(N)
-    <- start_game.
++ready_agents(N) : num_players(N) <- start_game.
 
 +!update_slots(_) : true.
 

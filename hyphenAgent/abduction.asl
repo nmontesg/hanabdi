@@ -37,6 +37,22 @@ abducible(has_card_rank(Me, Slot, Rank)) :-
 
 /* -------- INTEGRITY CONSTRAINTS -------- */
 
+ic :-
+    player(P) & slot(S) & color(C1) & color(C2) & C1 \== C2 &
+    has_card_color(P, S, C1) & has_card_color(P, S, C2).
+
+ic :-
+    player(P) & slot(S) & rank(R1) & rank(R2) & R1 \== R2 &
+    has_card_rank(P, S, R1) & has_card_rank(P, S, R2).
+
+ic :-
+    player(P) & slot(S) & color(C) &
+    has_card_color(P, S, C) & ~has_card_color(P, S, C).
+
+ic :-
+    player(P) & slot(S) & rank(R) &
+    has_card_rank(P, S, R) & ~has_card_rank(P, S, R).
+
 // An agent can only have a card of Color and Rank at any
 // Slot of their holder if the number of cards of that Color and Rank that have
 // been disclosed to the agent everywhere EXCEPT that Slot do not add up to the
@@ -125,4 +141,6 @@ abduce(Goal, Delta0, Delta) :-
     .findall(E, abduced_ic(E), RefExpls);
     .abolish(abduced_ic(_));
     custom.list2dnf(RefExpls, DNF);
-    .print("My explanation DNF is: ", DNF).
+    .print("My explanation DNF is: ", DNF);
+    // +(abduced :- DNF);
+    .

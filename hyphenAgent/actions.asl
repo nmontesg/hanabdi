@@ -123,14 +123,17 @@
     -+finished_abduction_messages(N+1);
     -finished_abduction [source(Player)].
 
+@resumeAction1[atomic]
 +finished_abduction_messages(M)
     : num_players(N) & M == N-1 & .suspended(play_card(Slot), _)
     <- .resume(play_card(Slot)).
 
+@resumeAction2[atomic]
 +finished_abduction_messages(M)
     : num_players(N) & M == N-1 & .suspended(discard_card(Slot), _)
     <- .resume(discard_card(Slot)).
 
+@resumeAction3[atomic]
 +finished_abduction_messages(M)
     : num_players(N) & M == N-1 & .suspended(give_hint(ToPlayer, Mode, Value), _)
     <- .resume(give_hint(ToPlayer, Mode, Value)).
