@@ -118,23 +118,23 @@
     .abolish(~has_card_rank(Player, Slot, _) [hint_id(_), source(hint)]).
 
 @receiveFinishMessage[atomic]
-+finished_abduction [source(Player)] : true
-    <- ?finished_abduction_messages(N);
-    -+finished_abduction_messages(N+1);
-    -finished_abduction [source(Player)].
++finish_process_action [source(Player)] : true
+    <- ?finished_process_action(N);
+    -+finished_process_action(N+1);
+    -finish_process_action [source(Player)].
 
 @resumeAction1[atomic]
-+finished_abduction_messages(M)
++finished_process_action(M)
     : num_players(N) & M == N-1 & .suspended(play_card(Slot), _)
     <- .resume(play_card(Slot)).
 
 @resumeAction2[atomic]
-+finished_abduction_messages(M)
++finished_process_action(M)
     : num_players(N) & M == N-1 & .suspended(discard_card(Slot), _)
     <- .resume(discard_card(Slot)).
 
 @resumeAction3[atomic]
-+finished_abduction_messages(M)
++finished_process_action(M)
     : num_players(N) & M == N-1 & .suspended(give_hint(ToPlayer, Mode, Value), _)
     <- .resume(give_hint(ToPlayer, Mode, Value)).
 

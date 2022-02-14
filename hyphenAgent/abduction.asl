@@ -5,11 +5,13 @@
 
 @kqmlReceivedPublicAction1[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true
-    <- !remove_hint_info(KQML_Sender_Var, Slot).
+    <- !remove_hint_info(KQML_Sender_Var, Slot);
+    .send(KQML_Sender_Var, tell, finish_process_action).
 
 @kqmlReceivedPublicAction2[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true
-    <- !remove_hint_info(KQML_Sender_Var, Slot).
+    <- !remove_hint_info(KQML_Sender_Var, Slot);
+    .send(KQML_Sender_Var, tell, finish_process_action).
 
 @kqmlReceivedPublicAction3[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, hint(Id, KQML_Sender_Var, ToPlayer, Mode, Value, Slots), KQML_MsgId) : true
@@ -22,7 +24,8 @@
         Belief =.. [Term, [ToPlayer, S, Value], [source(hint), hint_id(Id)]];
         if ( .member(S, Slots) ) { +Belief; } else { +(~Belief); }
     }
-    !abduce(KQML_Sender_Var, give_hint(ToPlayer, Mode, Value)).
+    !abduce(KQML_Sender_Var, give_hint(ToPlayer, Mode, Value));
+    .send(KQML_Sender_Var, tell, finish_process_action).
 
 
 /* -------- ABDUCIBLE ATOMS -------- */
@@ -123,9 +126,7 @@ abduce(Goal, Delta0, Delta) :-
     .findall(E, abduced(E), AllAbdExpl);
     custom.remove_beliefs;
     custom.recover_beliefs;   
-    !refine_abduced_explanations(AllAbdExpl);
-    .send(Player, tell, finished_abduction);
-    .print("told ", Player, " that I finished abduction").
+    !refine_abduced_explanations(AllAbdExpl).
 
 
 @refineAbducedExplanations[atomic]

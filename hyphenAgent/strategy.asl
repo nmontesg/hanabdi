@@ -5,8 +5,8 @@
 // might not work when going to higher-order ToM (>1)
 
 @actInTheGame[atomic]
-+player_turn(Me) : .my_name(Me) & turn_number(Me, 1)
-    <- -+finished_abduction_messages(0);
++player_turn(Me) : my_name(Me) & turn_number(Me, 1)
+    <- -+finished_process_action(0);
     ?select_action(Action);
     .print("I selected the action: ", Action);
     !Action.
