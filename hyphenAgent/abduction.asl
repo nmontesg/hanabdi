@@ -5,12 +5,14 @@
 
 @kqmlReceivedPublicAction1[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true
-    <- !remove_hint_info(KQML_Sender_Var, Slot);
+    <- !abduce(KQML_Sender_Var, play_card(Slot));
+    !remove_hint_info(KQML_Sender_Var, Slot);
     .send(KQML_Sender_Var, tell, finish_process_action).
 
 @kqmlReceivedPublicAction2[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true
-    <- !remove_hint_info(KQML_Sender_Var, Slot);
+    <- !abduce(KQML_Sender_Var, discard_card(Slot));
+    !remove_hint_info(KQML_Sender_Var, Slot);
     .send(KQML_Sender_Var, tell, finish_process_action).
 
 @kqmlReceivedPublicAction3[atomic]
@@ -128,6 +130,7 @@ abduce(Goal, Delta0, Delta) :-
     custom.recover_beliefs;   
     !refine_abduced_explanations(AllAbdExpl).
 
+// TODO: also refine if explanations were leading to actions with higher priority.
 
 @refineAbducedExplanations[atomic]
 +!refine_abduced_explanations(L) : true

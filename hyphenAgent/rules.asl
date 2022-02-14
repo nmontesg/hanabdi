@@ -10,14 +10,12 @@
     rank(R1) & has_card_rank(Player, Slot, R2) & R2 \== R1.
 
 has_playable_card(Player, Slot) :-
-    my_name(Me) & Player \== Me &
     has_card_color(Player, Slot, Color) &
-    has_card_rank(Player, Slot, Rank) &
+    has_card_rank(Player, Slot, Rank) & 
     stack(Color, Stack) &
     Stack = Rank-1.
 
 has_critical_card(Player, Slot) :-
-    my_name(Me) & Player \== Me &
     has_card_color(Player, Slot, Color) &
     has_card_rank(Player, Slot, Rank) &
     cards_per_rank(Rank, N) &
@@ -25,7 +23,6 @@ has_critical_card(Player, Slot) :-
     D = N-1.
 
 has_discardable_card(Player, Slot) :-
-    my_name(Me) & Player \== Me &
     has_card_color(Player, Slot, Color) &
     has_card_rank(Player, Slot, Rank) &
     stack(Color, Stack) &
