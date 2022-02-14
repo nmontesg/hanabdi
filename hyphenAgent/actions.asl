@@ -12,9 +12,10 @@
 // the action is selected, i.e. BEFORE it is performed
 
 @playCard
-+!play_card(Slot) : true
++!play_card(Slot) : my_name(Me)
     <- .broadcast(publicAction, play_card(Slot));
-    // wait for everyone else to perform abduction
+    !remove_hint_info(Me, Slot);
+    // wait for everyone else to process the public action
     .suspend(play_card(Slot));
     play_card(Slot);
     !update_slots(took_card(Slot));
@@ -23,9 +24,10 @@
     finish_turn.
 
 @discardCard
-+!discard_card(Slot) : true
++!discard_card(Slot) : my_name(Me)
     <- .broadcast(publicAction, discard_card(Slot));
-    // wait for everyone else to perform abduction
+    !remove_hint_info(Me, Slot);
+    // wait for everyone else to process the public action
     .suspend(discard_card(Slot));
     discard_card(Slot);
     !update_slots(took_card(Slot));
@@ -36,7 +38,7 @@
 @giveColorHint
 +!give_hint(ToPlayer, color, Value) : true
     <- ?hint_id(Id);
-    .findall(S, has_card_color(ToPlayer, S, Value) [source(percept)], Slots); 
+    .findall(S, has_card_color(ToPlayer, S, Value) [source(percept)], Slots);
     ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
         if ( .member(S, Slots) ) { +has_card_color(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
@@ -82,8 +84,7 @@
     .nth(N, L, Slot);
     .delete(N, L, Lprime);
     -ordered_slots(Me, _);
-    +ordered_slots(Me, Lprime);
-    !remove_hint_info(Me, Slot).
+    +ordered_slots(Me, Lprime).
 
 @updateSlots2[atomic]
 +!update_slots(took_card(Slot)) [source(Player)] : Player \== self
@@ -91,8 +92,7 @@
     .nth(N, L, Slot);
     .delete(N, L, Lprime);
     -ordered_slots(Player, _);
-    +ordered_slots(Player, Lprime);
-    !remove_hint_info(Player, Slot).
+    +ordered_slots(Player, Lprime).
 
 @updateSlots3[atomic]
 +!update_slots(placed_card(Slot)) [source(self)] : my_name(Me)
@@ -112,10 +112,10 @@
 // Percepts are automatically updated by the Jason interpreter.
 @removeHintInfo[atomic]
 +!remove_hint_info(Player, Slot) : true
-    <- -has_card_color(Player, Slot, _) [hint_id(_), source(hint)];
-    -~has_card_color(Player, Slot, _) [hint_id(_), source(hint)];
-    -has_card_rank(Player, Slot, _) [hint_id(_), source(hint)];
-    -~has_card_rank(Player, Slot, _) [hint_id(_), source(hint)].
+    <- .abolish(has_card_color(Player, Slot, _) [hint_id(_), source(hint)]);
+    .abolish(~has_card_color(Player, Slot, _) [hint_id(_), source(hint)]);
+    .abolish(has_card_rank(Player, Slot, _) [hint_id(_), source(hint)]);
+    .abolish(~has_card_rank(Player, Slot, _) [hint_id(_), source(hint)]).
 
 @receiveFinishMessage[atomic]
 +finished_abduction [source(Player)] : true

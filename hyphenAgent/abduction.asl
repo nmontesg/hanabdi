@@ -1,10 +1,15 @@
 /* -------- PUBLIC ACTIONS -------- */
 
+// TODO: receiving the information that a player has played or discarded a
+// card should trigger the agent to revise abduced knowledge.
+
 @kqmlReceivedPublicAction1[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true.
++!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true
+    <- !remove_hint_info(KQML_Sender_Var, Slot).
 
 @kqmlReceivedPublicAction2[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true.
++!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true
+    <- !remove_hint_info(KQML_Sender_Var, Slot).
 
 @kqmlReceivedPublicAction3[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, hint(Id, KQML_Sender_Var, ToPlayer, Mode, Value, Slots), KQML_MsgId) : true

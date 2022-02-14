@@ -22,7 +22,7 @@
     turns_ahead(HintedPlayer, 1) &
     chop(HintedPlayer, Slot) &
     has_card_rank(HintedPlayer, Slot, Rank) &
-    has_critical_card(HintedPlayer, Slot).    
+    has_critical_card(HintedPlayer, Slot).
 
 @playPlayableCard
 +?select_action(play_card(Slot)) :
@@ -32,6 +32,7 @@
 +?select_action(give_hint(HintedPlayer, rank, Rank)) :
     available_info_tokens &
     unhinted(HintedPlayer, S) &
+    my_name(Me) & Me \== HintedPlayer &
     has_card_rank(HintedPlayer, S, Rank) &
     has_playable_card(HintedPlayer, S).
 
