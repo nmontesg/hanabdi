@@ -9,25 +9,9 @@
 //      * I want to know what bob thinks my perspective is (nesting level 2):
 //              my_name(Me); !adopt_perspective([bob, Me]).
 
-@adoptPerspective[atomic]
-+!adopt_perspective(L) : true
+@adoptPerspective1[atomic]
++!adopt_perspective([Last]) : .length([Last], 1)
     <- custom.backup_beliefs;
-    // for all the members whose perspective has to be adopted before the last
-    // all the inference rules have to be copied
-    .length(L, Len);
-    for ( .range(I, 0, Len-2) ) {
-        .nth(I, L, Next);
-        .findall(Phi [Annot], knows(Next, Phi [Annot]), PhiList);
-        .relevant_rules(_, AllRules);
-        custom.remove_beliefs;
-        for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
-        for ( .member(Rule, AllRules) ) { +Rule; }
-    }
-    // before the perspective of the last player is adopted, the abducible
-    // atoms have to be retrieved (and later introduced into the BB). Also,
-    // the inference rules to derive abducible atoms should NOT be copied,
-    // as they may interfere with the abductive reasoning process.
-    .nth(Len-1, L, Last);
     .findall(A, abducible(A), AbdList);
     .findall(Phi [Annot], knows(Last, Phi [Annot]), PhiList);
     .relevant_rules(_, AllRules);
@@ -42,6 +26,15 @@
     }
     for ( .member(A, AbdList) ) { +abducible(A); }.
 
+@adoptPerspectiveN[atomic]
++!adopt_perspective([H|T]) : .length([H|T], N) & N > 1
+    <- custom.backup_beliefs;
+    .findall(Phi [Annot], knows(H, Phi [Annot]), PhiList);
+    .relevant_rules(_, AllRules);
+    custom.remove_beliefs;
+    for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
+    for ( .member(Rule, AllRules) ) { +Rule; }
+    !adopt_perspective(T).
 
 /* -------- First-order Theory of Mind -------- */
 
