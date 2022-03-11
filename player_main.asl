@@ -3,7 +3,6 @@
 { include("hanabiAgent/select.asl") }
 { include("hanabiAgent/tom.asl") }
 { include("hanabiAgent/abduction.asl") }
-{ include("hanabiAgent/worlds.asl") }
 
 // TODO: have the asl file with the particular strategy as an input (command-line
 // argument). Make repository of rule-based strategies
