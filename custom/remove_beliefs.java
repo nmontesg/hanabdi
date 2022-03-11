@@ -12,8 +12,6 @@ public class remove_beliefs extends DefaultInternalAction {
             HanabiAgent ag = (HanabiAgent)ts.getAg();
             ag.removeBeliefs();
             return true;
-        } catch (ClassCastException e) {
-            throw new JasonException("Agent executing 'remove_beliefs' cannot be casted to HanabiAgent class");
         } catch (Exception e) {
             throw new JasonException("Error in 'remove_beliefs': " + e.toString());
         }

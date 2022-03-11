@@ -1,46 +1,44 @@
 /* -------- PUBLIC ACTIONS -------- */
 
-// TODO: receiving the information that a player has played or discarded a
-// card should trigger the agent to revise abduced knowledge.
-
 @kqmlReceivedPublicAction1[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true
-    <- !abduce(KQML_Sender_Var, play_card(Slot));
-    !remove_hint_info(KQML_Sender_Var, Slot);
-    .send(KQML_Sender_Var, tell, finish_process_action).
-
+    <- //!abduce(KQML_Sender_Var, play_card(Slot));
+    .send(KQML_Sender_Var, tell, finished_abduction).
+    
 @kqmlReceivedPublicAction2[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true
-    <- !abduce(KQML_Sender_Var, discard_card(Slot));
-    !remove_hint_info(KQML_Sender_Var, Slot);
-    .send(KQML_Sender_Var, tell, finish_process_action).
-
+    <- //!abduce(KQML_Sender_Var, discard_card(Slot));
+    .send(KQML_Sender_Var, tell, finished_abduction).
+    
 @kqmlReceivedPublicAction3[atomic]
-+!kqml_received(KQML_Sender_Var, publicAction, hint(Id, KQML_Sender_Var, ToPlayer, Mode, Value, Slots), KQML_MsgId) : true
-    <- +hint(Id, KQML_Sender_Var, ToPlayer, Mode, Value, Slots);
++!kqml_received(KQML_Sender_Var, publicAction, give_hint(HintedPlayer, Mode, Value, SlotList), KQML_MsgId) : true
+    <- ?hint_id(Id);
+    +hint(Id, KQML_Sender_Var, HintedPlayer, Mode, Value, SlotList);
     // first update explicit information conveyed by the hint before abducing
     .concat("has_card_", Mode, String);
     .term2string(Term, String);
     ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
-        Belief =.. [Term, [ToPlayer, S, Value], [source(hint), hint_id(Id)]];
-        if ( .member(S, Slots) ) { +Belief; } else { +(~Belief); }
+        Belief =.. [Term, [HintedPlayer, S, Value], [source(hint), hint_id(Id)]];
+        if ( .member(S, SlotList) ) { +Belief; } else { +(~Belief); }
     }
-    !abduce(KQML_Sender_Var, give_hint(ToPlayer, Mode, Value));
-    .send(KQML_Sender_Var, tell, finish_process_action).
-
+    !abduce(KQML_Sender_Var, give_hint(HintedPlayer, Mode, Value));
+    .send(KQML_Sender_Var, tell, finished_abduction).
+    
 
 /* -------- ABDUCIBLE ATOMS -------- */
 
-abducible(has_card_color(Me, Slot, Color)) :-
-    my_name(Me) & slot(Slot) & color(Color) &
-    not has_card_color(Me, Slot, _) &
-    not ~has_card_color(Me, Slot, Color).
+abducible(has_card_color(Player, Slot, C1)) :-
+    player(Player) & slot(Slot) & color(C1) & color(C2) & C2 \== C1 &
+    logic_program(LPs) & .member(Player, LPs) &
+    not has_card_color(Player, Slot, C2) & 
+    not ~has_card_color(Player, Slot, C1).
 
-abducible(has_card_rank(Me, Slot, Rank)) :-
-    my_name(Me) & slot(Slot) & rank(Rank) &
-    not has_card_rank(Me, Slot, _) &
-    not ~has_card_rank(Me, Slot, Rank).
+abducible(has_card_rank(Player, Slot, R1)) :-
+    player(Player) & slot(Slot) & rank(R1) & rank(R2) & R1 \== R2 &
+    logic_program(LPs) & .member(Player, LPs) &
+    not has_card_rank(Player, Slot, R2) & 
+    not ~has_card_rank(Player, Slot, R1).
 
 
 /* -------- INTEGRITY CONSTRAINTS -------- */
@@ -70,7 +68,6 @@ ic :-
     player(P) & slot(S) & color(C) & rank(R) &
     has_card_color(P, S, C) & has_card_rank(P, S, R) &
     disclosed_cards(C, R, P, S, N) & cards_per_rank(R, N).
-
 
 /* -------- ABDUCTIVE REASONING RULES -------- */
 
@@ -114,11 +111,11 @@ abduce(Goal, Delta0, Delta) :-
 
 @abduction[atomic]
 +!abduce(Player, Action) : true
-    <- // .print("I received the abduce command");
+    <- custom.backup_beliefs;
     !adopt_perspective([Player]);
-    .findall(Plan, .relevant_plan({+?select_action(Action)}, Plan), LP);
+    .findall(Plan, .relevant_plan({+? action(Action)}, Plan), LP);
     for ( .member(P, LP) ) {
-        custom.get_plan_context(P, Context);
+        custom.decompose_plan(P, _, _, Context, _);
         .findall(Delta, abduce(Context, [], Delta), LExpl);
         //.print(P, "\n\n", Context, "\n\n", LExpl, "\n\n");
         .length(LExpl, N);
@@ -127,26 +124,25 @@ abduce(Goal, Delta0, Delta) :-
     // save the abduced explanations in a list and recover my original BB
     .findall(E, abduced(E), AllAbdExpl);
     custom.remove_beliefs;
-    custom.recover_beliefs;   
+    custom.recover_beliefs;
     !refine_abduced_explanations(AllAbdExpl).
 
-// TODO: also refine if explanations were leading to actions with higher priority.
 
-@refineAbducedExplanations[atomic]
-+!refine_abduced_explanations(L) : true
+@refineAbducedExplanations1[atomic]
++!refine_abduced_explanations(L) : .length(L, N) & N > 0
     <- // check which explanations are consistent with the ICs
     for ( .member(Exp, L) ) {
         // Check if the explanation is compatible with the integrity constraints
         for ( .member(Fact, Exp) ) { +Fact; }
         if ( not ic ) {
-            //.print("Explanation ", Exp, " is OK");
-            +abduced_ic(Exp);
+            .print("Explanation ", Exp, " is OK");
+            //+abduced_ic(Exp);
         } else {
-            //.print("Explanation ", Exp, " is inconsistent with the ICs");
+            .print("Explanation ", Exp, " is inconsistent with the ICs");
         }
         for ( .member(Fact, Exp) ) { -Fact; }
-    }
-    .findall(E, abduced_ic(E), RefExpls);
-    .abolish(abduced_ic(_));
-    custom.list2dnf(RefExpls, DNF);
-    .print("My explanation DNF is: ", DNF).
+    }.
+
+@refineAbducedExplanations2[atomic]
++!refine_abduced_explanations(L) : .length(L, 0)
+    <- .print("no explanations to refine").

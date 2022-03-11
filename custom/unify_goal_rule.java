@@ -30,8 +30,6 @@ public class unify_goal_rule extends DefaultInternalAction {
 
             return un.unifies(newRule, args[2]);
 
-        } catch (ClassCastException e) {
-            throw new JasonException("Casting exception in 'unify_goal_rule'");
         } catch (Exception e) {
             throw new JasonException("Error in 'unify_goal_rule': " + e.toString());
         }

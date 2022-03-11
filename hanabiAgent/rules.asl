@@ -1,17 +1,19 @@
 // This file includes the additional Prolog-like rules that operate on known
 // facts and percets.
 
-// No abducibles can be in the head of rules
+// No abducibles can be in the head of rules (?)
 
 ~has_card_color(Player, Slot, C1) :-
-    color(C1) & has_card_color(Player, Slot, C2) & C2 \== C1.
+    player(Player) & slot(Slot) & color(C1) & color(C2) & C1 \== C2 &
+    has_card_color(Player, Slot, C2).
 
 ~has_card_rank(Player, Slot, R1) :-
-    rank(R1) & has_card_rank(Player, Slot, R2) & R2 \== R1.
+    player(Player) & slot(Slot) & rank(R1) & rank(R2) & R1 \== R2 &
+    has_card_rank(Player, Slot, R2).
 
 has_playable_card(Player, Slot) :-
     has_card_color(Player, Slot, Color) &
-    has_card_rank(Player, Slot, Rank) & 
+    has_card_rank(Player, Slot, Rank) &
     stack(Color, Stack) &
     Stack = Rank-1.
 
@@ -61,22 +63,25 @@ oldest_unhinted_slot(Player, [H|T], E) :-
 
 // there are available info token and some are spent (so discard is available)
 available_info_tokens :- num_info_tokens(N) & N > 0.
-spent_info_tokens :- num_info_tokens(N) & max_info_tokens(Total) & N < Total.
+spent_info_tokens :- num_info_tokens(Tokens) & max_info_tokens(Total) & Tokens < Total.
 
 // number of cards that have been disclosed to me EXCEPT the identity of the 
 // card of Player at position Slot
 disclosed_cards(Color, Rank, Player, Slot, N) :-
-    stack(Color, Stack) & Stack < Rank &
+    color(Color) & rank(Rank) & player(Player) & slot(Slot) &
     .findall(
         has_card(P, S, Color, Rank),
-        has_card_color(P, S, Color) & has_card_rank(P, S, Rank) & P \== Player & S \== Slot,
-        L
-    ) & .length(L, N1) & discarded(Color, Rank, N2) & N = N1 + N2.
+        has_card_color(P, S, Color) & has_card_rank(P, S, Rank) & slot(S) & P \== Player,
+        L1
+    ) & .length(L1, N1) &
+    .findall(
+        has_card(Player, S, Color, Rank),
+        has_card_color(Player, S, Color) & has_card_rank(Player, S, Rank) & S \== Slot,
+        L2
+    ) & .length(L2, N2) &
+    discarded(Color, Rank, N3) &
+    card_in_stack(Color, Rank, N4) &
+    N = N1 + N2 + N3 + N4.
 
-disclosed_cards(Color, Rank, Player, Slot, N) :-
-    stack(Color, Stack) & Stack >= Rank &
-    .findall(
-        has_card(P, S, Color, Rank),
-        has_card_color(P, S, Color) & has_card_rank(P, S, Rank) & P \== Player & S \== Slot,
-        L
-    ) & .length(L, N1) & discarded(Color, Rank, N2) & N = N1 + N2 + 1.
+card_in_stack(Color, Rank, 0) :- stack(Color, Stack) & Stack < Rank.
+card_in_stack(Color, Rank, 1) :- stack(Color, Stack) & Stack >= Rank.

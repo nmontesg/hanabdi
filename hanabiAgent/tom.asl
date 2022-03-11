@@ -11,27 +11,31 @@
 
 @adoptPerspective1[atomic]
 +!adopt_perspective([Last]) : .length([Last], 1)
-    <- custom.backup_beliefs;
-    .findall(A, abducible(A), AbdList);
+    <- .findall(A, abducible(A), AbdList);
     .findall(Phi [Annot], knows(Last, Phi [Annot]), PhiList);
     .relevant_rules(_, AllRules);
+    ?logic_program(LPs);
+    .concat(LPs, [Last], NewLPs);
     custom.remove_beliefs;
+    +logic_program(NewLPs);
     for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
     for ( .member(Rule, AllRules) ) {
-        // abducible/1 rules should NOT be adopted. They interfere
-        // with the abductive reasoning process
+        // abducible/1 rules should NOT be adopted. They interfere with the
+        // abductive reasoning process
         custom.decompose_rule(Rule, Head, _);
         Head =.. [Functor, _, _];
-        if ( Functor \== abducible ) { +Rule [source(self)]; }
+        if ( Functor \== abducible ) { +Rule; }
     }
     for ( .member(A, AbdList) ) { +abducible(A); }.
 
 @adoptPerspectiveN[atomic]
 +!adopt_perspective([H|T]) : .length([H|T], N) & N > 1
-    <- custom.backup_beliefs;
-    .findall(Phi [Annot], knows(H, Phi [Annot]), PhiList);
+    <- .findall(Phi [Annot], knows(H, Phi [Annot]), PhiList);
     .relevant_rules(_, AllRules);
+    ?logic_program(LPs);
+    .concat(LPs, [H], NewLPs);
     custom.remove_beliefs;
+    +logic_program(NewLPs);
     for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
     for ( .member(Rule, AllRules) ) { +Rule; }
     !adopt_perspective(T).

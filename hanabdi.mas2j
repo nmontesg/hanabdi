@@ -10,6 +10,8 @@
     noviembre 08, 2021 - 09:12:47
 */
 
+// TODO: command-line arguments?
+
 MAS hanabdi {
 
     // numplayer, numLives, numInfoTokens, numColors, numRanks, seed

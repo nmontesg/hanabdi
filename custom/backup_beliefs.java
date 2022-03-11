@@ -12,8 +12,6 @@ public class backup_beliefs extends DefaultInternalAction {
             HanabiAgent ag = (HanabiAgent)ts.getAg();
             ag.backUpBeliefs();
             return true;
-        } catch (ClassCastException e) {
-            throw new JasonException("Agent executing 'backup_beliefs' cannot be casted to HanabiAgent class");
         } catch (Exception e) {
             throw new JasonException("Error in 'backup_beliefs': " + e.toString());
         }

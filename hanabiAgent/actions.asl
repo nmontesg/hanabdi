@@ -11,61 +11,56 @@
 // other players have to abduce with the state of the game as it is when
 // the action is selected, i.e. BEFORE it is performed
 
-@playCard
+@receiveFinishMessage[atomic]
++finished_abduction [source(Player)] : true
+    <- ?finished_abduction(N);
+    -+finished_abduction(N+1);
+    -finished_abduction [source(Player)].
+
+@resumeAction[atomic]
++finished_abduction(M) : num_players(N) & M == N-1
+    <- .print("everyone done with abduction");
+    ?my_action(Action);
+    !Action;
+    .abolish(my_action(_)).
+
+@playCard[atomic]
 +!play_card(Slot) : my_name(Me)
-    <- .broadcast(publicAction, play_card(Slot));
+    <- play_card(Slot);
+    // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);
-    // wait for everyone else to process the public action
-    .suspend(play_card(Slot));
-    play_card(Slot);
+    .broadcast(achieve, remove_hint_info(Me, Slot));
+    // remove slot from ordered slots
     !update_slots(took_card(Slot));
     .broadcast(achieve, update_slots(took_card(Slot)));
     !replace_card(Slot);
     finish_turn.
 
-@discardCard
+@discardCard[atomic]
 +!discard_card(Slot) : my_name(Me)
-    <- .broadcast(publicAction, discard_card(Slot));
+    <- discard_card(Slot);
+    // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);
-    // wait for everyone else to process the public action
-    .suspend(discard_card(Slot));
-    discard_card(Slot);
+    .broadcast(achieve, remove_hint_info(Me, Slot));
+    // remove slot from ordered slots
     !update_slots(took_card(Slot));
     .broadcast(achieve, update_slots(took_card(Slot)));
     !replace_card(Slot);
     finish_turn.
 
-@giveColorHint
-+!give_hint(ToPlayer, color, Value) : true
-    <- ?hint_id(Id);
-    .findall(S, has_card_color(ToPlayer, S, Value) [source(percept)], Slots);
+@giveHint[atomic]
++!give_hint(HintedPlayer, Mode, Value) : .my_name(Me)
+    <- .concat("has_card_", Mode, String);
+    .term2string(Term, String);
+    Query =.. [Term, [HintedPlayer, S1, Value], [source(percept)]];
+    .findall(S1, Query, SlotList);
+    ?hint_id(Id);
+    +hint(Id, Me, HintedPlayer, Mode, Value, SlotList);
     ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
-        if ( .member(S, Slots) ) { +has_card_color(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
-        else  { +~has_card_color(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
+        Belief =.. [Term, [HintedPlayer, S, Value], [source(hint), hint_id(Id)]];
+        if ( .member(S, SlotList) ) { +Belief; } else { +(~Belief); }
     }
-    .my_name(FromPlayer);
-    +hint(Id, FromPlayer, ToPlayer, color, Value, Slots);
-    .broadcast(publicAction, hint(Id, FromPlayer, ToPlayer, color, Value, Slots));
-    // wait for everyone else to perform abduction
-    .suspend(give_hint(ToPlayer, color, Value));
-    spend_info_token;
-    finish_turn.
-
-@giveRankHint
-+!give_hint(ToPlayer, rank, Value) : true
-    <- ?hint_id(Id);
-    .findall(S, has_card_rank(ToPlayer, S, Value) [source(percept)], Slots);
-    ?cards_per_player(N);
-    for ( .range(S, 1, N) ) {
-        if ( .member(S, Slots) ) { +has_card_rank(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
-        else  { +~has_card_rank(ToPlayer, S, Value) [source(hint), hint_id(Id)]; }
-    }
-    .my_name(FromPlayer);
-    +hint(Id, FromPlayer, ToPlayer, rank, Value, Slots);
-    .broadcast(publicAction, hint(Id, FromPlayer, ToPlayer, rank, Value, Slots));
-    // wait for everyone else to perform abduction
-    .suspend(give_hint(ToPlayer, rank, Value));
     spend_info_token;
     finish_turn.
 
@@ -116,31 +111,3 @@
     .abolish(~has_card_color(Player, Slot, _) [hint_id(_), source(hint)]);
     .abolish(has_card_rank(Player, Slot, _) [hint_id(_), source(hint)]);
     .abolish(~has_card_rank(Player, Slot, _) [hint_id(_), source(hint)]).
-
-@receiveFinishMessage[atomic]
-+finish_process_action [source(Player)] : true
-    <- ?finished_process_action(N);
-    -+finished_process_action(N+1);
-    -finish_process_action [source(Player)].
-
-@resumeAction1[atomic]
-+finished_process_action(M)
-    : num_players(N) & M == N-1 & .suspended(play_card(Slot), _)
-    <- .resume(play_card(Slot)).
-
-@resumeAction2[atomic]
-+finished_process_action(M)
-    : num_players(N) & M == N-1 & .suspended(discard_card(Slot), _)
-    <- .resume(discard_card(Slot)).
-
-@resumeAction3[atomic]
-+finished_process_action(M)
-    : num_players(N) & M == N-1 & .suspended(give_hint(ToPlayer, Mode, Value), _)
-    <- .resume(give_hint(ToPlayer, Mode, Value)).
-
-/*
-@resumeAction[atomic]
-+finished_abduction_messages(N)
-    : num_players(N) & M == N-1 & .suspended(player_turn(Me), _) & .my_name(Me)
-    <- .resume(player_turn(Me)).
-*/

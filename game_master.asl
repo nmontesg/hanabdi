@@ -25,5 +25,5 @@ ready_agents(0).
 +ready_agents(N) : num_players(N) <- start_game.
 
 +!update_slots(_) : true.
-
-+!kqml_received(KQML_Sender_Var, publicAction, _, KQML_MsgId) : true.
++!remove_hint_info(_, _) : true.
++!kqml_received(_, publicAction, _, _) : true.
