@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Collections;
 import jason.asSyntax.*;
+import jason.asSemantics.*;
 import jason.environment.*;
 
 
@@ -180,13 +181,15 @@ public class HanabiGame extends Environment {
         // action: pick a card from the card holder and play it
         else if (action.getFunctor().equals("play_card")) {
             int slot = Integer.parseInt(action.getTerm(0).toString());
-            result = playCard(agent, slot);
+            MapTermImpl map = (MapTermImpl)action.getTerm(1);
+            result = playCard(agent, slot, map);
         }
 
         // action: pick a card from the card holder and discard it
         else if (action.getFunctor().equals("discard_card")) {
             int slot = Integer.parseInt(action.getTerm(0).toString());
-            result = discardCard(agent, slot);
+            MapTermImpl map = (MapTermImpl)action.getTerm(1);
+            result = discardCard(agent, slot, map);
         }
 
         // action: spend an information token
@@ -276,7 +279,7 @@ public class HanabiGame extends Environment {
         return true;
     }
 
-    private boolean playCard(String agent, int slot) {
+    private boolean playCard(String agent, int slot, MapTermImpl map) {
         // pick the card from the holder
         int index = agents.indexOf(agent);
         HanabiCard card = cardHolders[index].pickCard(slot);
@@ -298,6 +301,14 @@ public class HanabiGame extends Environment {
         int rank = card.getRank();
         int colorInd = hanabiColors.indexOf(color);
         int stackHeight = stack[colorInd];
+
+        // add entries in the map for the color and rank of the card
+        VarTerm colorVar = new VarTerm("C");
+        VarTerm rankVar = new VarTerm("R");
+        Atom colorTerm = new Atom(color);
+        NumberTermImpl rankTerm = new NumberTermImpl(rank);
+        map.put(colorVar, colorTerm);
+        map.put(rankVar, rankTerm);
 
         // card is successfully played
         if (rank == stackHeight + 1) {
@@ -344,7 +355,7 @@ public class HanabiGame extends Environment {
         return true;
     }
 
-    private boolean discardCard(String agent, int slot) {
+    private boolean discardCard(String agent, int slot, MapTermImpl map) {
         if (numInfoTokens == maxInfoTokens) {
             return false;
         }
@@ -369,6 +380,14 @@ public class HanabiGame extends Environment {
         String color = card.getColor();
         int rank = card.getRank();
         int colorInd = hanabiColors.indexOf(color);
+
+        // add entries in the map for the color and rank of the card
+        VarTerm colorVar = new VarTerm("C");
+        VarTerm rankVar = new VarTerm("R");
+        Atom colorTerm = new Atom(color);
+        NumberTermImpl rankTerm = new NumberTermImpl(rank);
+        map.put(colorVar, colorTerm);
+        map.put(rankVar, rankTerm);
 
         numDiscardedCards += 1;
         removePerceptsByUnif(Literal.parseLiteral(String.format("num_discarded_cards(_)")));

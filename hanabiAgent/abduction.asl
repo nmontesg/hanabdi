@@ -140,19 +140,17 @@ abduce(Goal, Delta0, Delta) :-
                 custom.list2conjunction(Exp, 0, Conj);
                 +abduced_explanation(Conj);
             }
-        } else {
-            // .print("Explanation ", Exp, " is inconsistent with the ICs");
         }
         for ( .member(Fact, Exp) ) { -Fact; }
     }
     .findall(C, abduced_explanation(C), ListConj);
-    .print(ListConj);
     if ( .length(ListConj, NumConj) & NumConj > 0 ) {
         custom.list2conjunction(ListConj, 1, AbducedExpl);
-        .print(AbducedExpl);
-        custom.rule_head_body(NewIC, ic [source(abduction)], AbducedExpl);
+        ?abd_id(Id);
+        custom.rule_head_body(NewIC, ic [source(abduction), abd_id(Id)], AbducedExpl);
         .print(NewIC);
         +NewIC;
+        -+abd_id(Id+1);
     }
     .abolish(abduced_explanation(_)).
 

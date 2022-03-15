@@ -26,7 +26,10 @@
 
 @playCard[atomic]
 +!play_card(Slot) : my_name(Me)
-    <- play_card(Slot);
+    <- custom.new_map(Map);
+    play_card(Slot, Map);
+    custom.get_by_key(Map, C, Color);
+    custom.get_by_key(Map, R, Rank);
     // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);
     .broadcast(achieve, remove_hint_info(Me, Slot));
@@ -38,7 +41,10 @@
 
 @discardCard[atomic]
 +!discard_card(Slot) : my_name(Me)
-    <- discard_card(Slot);
+    <- custom.new_map(Map);
+    discard_card(Slot, Map);
+    custom.get_by_key(Map, C, Color);
+    custom.get_by_key(Map, R, Rank);
     // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);
     .broadcast(achieve, remove_hint_info(Me, Slot));
@@ -71,7 +77,9 @@
     .broadcast(achieve, update_slots(placed_card(Slot))).
 
 @replaceCard2[atomic]
-+!replace_card(Slot) : num_cards_deck(0).
++!replace_card(Slot) : num_cards_deck(0) & my_name(Me)
+    <- .abolish(has_card_color(Me, Slot, _));
+    .abolish(has_card_rank(Me, Slot, _)).
 
 @updateSlots1[atomic]
 +!update_slots(took_card(Slot)) [source(self)] : my_name(Me)

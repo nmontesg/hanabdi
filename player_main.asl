@@ -17,6 +17,7 @@
     .my_name(Me);
     +my_name(Me);
     +logic_program([Me]);
+    +abd_id(1);
     ?cards_per_player(N);
     .findall(Ag, player(Ag), PlayerList);
     .findall(X, .range(X, 1, N), SlotList);
