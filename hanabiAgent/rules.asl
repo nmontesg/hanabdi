@@ -1,7 +1,7 @@
 // This file includes the additional Prolog-like rules that operate on known
 // facts and percets.
 
-// No abducibles can be in the head of rules (?)
+// No abducibles can be in the head of rules
 
 ~has_card_color(Player, Slot, C1) :-
     player(Player) & slot(Slot) & color(C1) & color(C2) & C1 \== C2 &

@@ -2,12 +2,12 @@
 
 @kqmlReceivedPublicAction1[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true
-    <- //!abduce(KQML_Sender_Var, play_card(Slot));
+    <- !abduce(KQML_Sender_Var, play_card(Slot));
     .send(KQML_Sender_Var, tell, finished_abduction).
     
 @kqmlReceivedPublicAction2[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true
-    <- //!abduce(KQML_Sender_Var, discard_card(Slot));
+    <- !abduce(KQML_Sender_Var, discard_card(Slot));
     .send(KQML_Sender_Var, tell, finished_abduction).
     
 @kqmlReceivedPublicAction3[atomic]
@@ -69,6 +69,7 @@ ic :-
     has_card_color(P, S, C) & has_card_rank(P, S, R) &
     disclosed_cards(C, R, P, S, N) & cards_per_rank(R, N).
 
+
 /* -------- ABDUCTIVE REASONING RULES -------- */
 
 abduce(Goal1 & Goal2, Delta0, Delta) :-
@@ -92,7 +93,7 @@ abduce(Goal, Delta0, Delta) :-
     .relevant_rules(Goal, RL) & .length(RL, N) & N > 0 &
     .member(R, RL) &
     custom.unify_goal_rule(Goal, R, UnifiedR) & 
-    custom.decompose_rule(UnifiedR, _, Body) &
+    custom.rule_head_body(UnifiedR, _, Body) &
     abduce(Body, Delta0, Delta).
 
 
@@ -130,18 +131,30 @@ abduce(Goal, Delta0, Delta) :-
 
 @refineAbducedExplanations1[atomic]
 +!refine_abduced_explanations(L) : .length(L, N) & N > 0
-    <- // check which explanations are consistent with the ICs
-    for ( .member(Exp, L) ) {
+    <- for ( .member(Exp, L) ) {
         // Check if the explanation is compatible with the integrity constraints
         for ( .member(Fact, Exp) ) { +Fact; }
         if ( not ic ) {
             .print("Explanation ", Exp, " is OK");
-            //+abduced_ic(Exp);
+            if ( .length(Exp, M) & M > 0 ) {
+                custom.list2conjunction(Exp, 0, Conj);
+                +abduced_explanation(Conj);
+            }
         } else {
-            .print("Explanation ", Exp, " is inconsistent with the ICs");
+            // .print("Explanation ", Exp, " is inconsistent with the ICs");
         }
         for ( .member(Fact, Exp) ) { -Fact; }
-    }.
+    }
+    .findall(C, abduced_explanation(C), ListConj);
+    .print(ListConj);
+    if ( .length(ListConj, NumConj) & NumConj > 0 ) {
+        custom.list2conjunction(ListConj, 1, AbducedExpl);
+        .print(AbducedExpl);
+        custom.rule_head_body(NewIC, ic [source(abduction)], AbducedExpl);
+        .print(NewIC);
+        +NewIC;
+    }
+    .abolish(abduced_explanation(_)).
 
 @refineAbducedExplanations2[atomic]
 +!refine_abduced_explanations(L) : .length(L, 0)

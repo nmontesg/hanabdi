@@ -5,9 +5,9 @@
 +player_turn(Me) : .my_name(Me) & turn_number(Me, 1) & logic_program([Me])
     <- -+finished_abduction(0);
     !select_action;
-    .abolish(selected_action(_, _));
     ?my_action(Action);
-    .print("selected action ", Action).
+    .print("selected action ", Action);
+    !share_public_action(Action).
 
 @sharePublicAction1[atomic]
 +!share_public_action(play_card(Slot)) : true
@@ -39,33 +39,24 @@
 @evaluatePlan[atomic]
 +!evaluate_plan(Plan) : true
     <- custom.decompose_plan(Plan, _, _, Context, _);
-    .print(Plan);
-    .print(Context, "\n");
     // find potential (partial) instantiations for action selection plan
     .setof(F, partially_instantiate(Context, [], F), SkolemInsts);
-    // .print("missing literals that would lead to a full instantiation of the plan:");
-    // !print_list(SkolemInsts);
     for ( .member(PartialInst, SkolemInsts) ) { !evaluate_partial_instantiation(PartialInst); }.
-    // .print("----------------------------------------------------------------------\n\n").
 
 @evaluatePartialInst1[atomic]
 +!evaluate_partial_instantiation(Skolem) : .length(Skolem, N) & N > 0
     <- .findall(W, potential_instantation(Skolem, W), Worlds);
-    // .print("potential instantiations of ", Skolem, ":");
-    // !print_list(Worlds);
+    .abolish(selected_action(_, _));
     for ( .member(W, Worlds) ) {
         for ( .member(Fact, W) ) { +Fact [temp]; }
         if ( not ic ) {
             ?action(A);
             +selected_action(W, A);
-            // .print("instantiation ", W, " leads to action ", A);
         }
-        // else {
-        //     .print("instantiation ", W, " is not compatible with the ICs");
-        // }
         for ( .member(Fact, W) ) { -Fact [temp]; }
     }
     .setof(Act, selected_action(_, Act), SelectedActions);
+    .abolish(selected_action(_, _));
     if ( .length(SelectedActions, 1) ) {
         .nth(0, SelectedActions, FinalAction);
         -+my_action(FinalAction);
@@ -101,7 +92,7 @@ partially_instantiate(Literal, Unknowns, NewUnknowns) :-
     not custom.conjunction(Literal) & not Literal & not unknown(Literal) &
     .relevant_rules(Literal, RL) & .length(RL, N) & N > 0 & .member(R, RL) &
     custom.unify_goal_rule(Literal, R, UnifiedR) & 
-    custom.decompose_rule(UnifiedR, _, Body) &
+    custom.rule_head_body(UnifiedR, _, Body) &
     partially_instantiate(Body, Unknowns, NewUnknowns).
 
 partially_instantiate(Literal, Unknowns, Unknowns) :-

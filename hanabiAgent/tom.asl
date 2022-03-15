@@ -22,7 +22,7 @@
     for ( .member(Rule, AllRules) ) {
         // abducible/1 rules should NOT be adopted. They interfere with the
         // abductive reasoning process
-        custom.decompose_rule(Rule, Head, _);
+        custom.rule_head_body(Rule, Head, _);
         Head =.. [Functor, _, _];
         if ( Functor \== abducible ) { +Rule; }
     }

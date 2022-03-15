@@ -19,7 +19,7 @@
 
 @resumeAction[atomic]
 +finished_abduction(M) : num_players(N) & M == N-1
-    <- .print("everyone done with abduction");
+    <- .print("everyone done with abduction\n");
     ?my_action(Action);
     !Action;
     .abolish(my_action(_)).

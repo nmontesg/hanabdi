@@ -406,6 +406,7 @@ public class HanabiGame extends Environment {
         System.out.println(String.format("Game finished with score %d.", score));
         // FIXME: actually exit from running the MAS. Does this work?
         try{
+            // TODO: wait a bit so agents print
             getEnvironmentInfraTier().getRuntimeServices().stopMAS();
         }
         catch (Exception exc) {
