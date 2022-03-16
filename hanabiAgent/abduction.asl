@@ -29,14 +29,14 @@
 /* -------- ABDUCIBLE ATOMS -------- */
 
 abducible(has_card_color(Player, Slot, C1)) :-
-    player(Player) & slot(Slot) & color(C1) & color(C2) & C2 \== C1 &
-    logic_program(LPs) & .member(Player, LPs) &
+    player(Player) & logic_program(CurrentLP) & .member(Player, CurrentLP) &
+    slot(Slot) & color(C1) & color(C2) & C2 \== C1 &
     not has_card_color(Player, Slot, C2) & 
     not ~has_card_color(Player, Slot, C1).
 
 abducible(has_card_rank(Player, Slot, R1)) :-
-    player(Player) & slot(Slot) & rank(R1) & rank(R2) & R1 \== R2 &
-    logic_program(LPs) & .member(Player, LPs) &
+    player(Player) & logic_program(CurrentLP) & .member(Player, LPs) &
+    slot(Slot) & rank(R1) & rank(R2) & R1 \== R2 &
     not has_card_rank(Player, Slot, R2) & 
     not ~has_card_rank(Player, Slot, R1).
 
@@ -117,13 +117,13 @@ abduce(Goal, Delta0, Delta) :-
     .findall(Plan, .relevant_plan({+? action(Action)}, Plan), LP);
     for ( .member(P, LP) ) {
         custom.decompose_plan(P, _, _, Context, _);
-        .findall(Delta, abduce(Context, [], Delta), LExpl);
-        //.print(P, "\n\n", Context, "\n\n", LExpl, "\n\n");
-        .length(LExpl, N);
-        for ( .member(Expl, LExpl) ) { +abduced(Expl); }
+        .setof(Delta, abduce(Context, [], Delta), LExpl);
+        for ( .member(Expl, LExpl) ) { 
+            if ( .length(Expl, N) & N > 0) { +abductive_explanation(Expl); }
+        }
     }
     // save the abduced explanations in a list and recover my original BB
-    .findall(E, abduced(E), AllAbdExpl);
+    .findall(E, abductive_explanation(E), AllAbdExpl);
     custom.remove_beliefs;
     custom.recover_beliefs;
     !refine_abduced_explanations(AllAbdExpl).
@@ -131,29 +131,43 @@ abduce(Goal, Delta0, Delta) :-
 
 @refineAbducedExplanations1[atomic]
 +!refine_abduced_explanations(L) : .length(L, N) & N > 0
-    <- for ( .member(Exp, L) ) {
-        // Check if the explanation is compatible with the integrity constraints
-        for ( .member(Fact, Exp) ) { +Fact; }
-        if ( not ic ) {
-            .print("Explanation ", Exp, " is OK");
-            if ( .length(Exp, M) & M > 0 ) {
-                custom.list2conjunction(Exp, 0, Conj);
-                +abduced_explanation(Conj);
-            }
-        }
-        for ( .member(Fact, Exp) ) { -Fact; }
-    }
-    .findall(C, abduced_explanation(C), ListConj);
-    if ( .length(ListConj, NumConj) & NumConj > 0 ) {
-        custom.list2conjunction(ListConj, 1, AbducedExpl);
+    <- for ( .member(Exp, L) ) { !validate_explanation(Exp); }
+    .findall(E, valid_explanation(E), ValidExpls);
+    .findall(C, valid_explanation(C), ListValidExpls);
+    if ( .length(ListValidExpls, V) & V > 0 ) {
+        custom.list2conjunction(ListValidExpls, 1, NegatedDNF);
         ?abd_id(Id);
-        custom.rule_head_body(NewIC, ic [source(abduction), abd_id(Id)], AbducedExpl);
+        custom.rule_head_body(NewIC, ic [source(abduction), abd_id(Id)], NegatedDNF);
         .print(NewIC);
         +NewIC;
         -+abd_id(Id+1);
     }
-    .abolish(abduced_explanation(_)).
+    .abolish(valid_explanation(_)).
+
 
 @refineAbducedExplanations2[atomic]
-+!refine_abduced_explanations(L) : .length(L, 0)
-    <- .print("no explanations to refine").
++!refine_abduced_explanations(L) : .length(L, 0).
+
+
+@validateExplanation[atomic]
++!validate_explanation(Exp) : true
+    <- custom.list2conjunction(Exp, 0, Conj);
+    // check that the explanation is *informative*, i.e. cannot be derived from the BB
+    if ( not Conj ) {
+        // check that the explanation is consistent with the ICs
+        for ( .member(Fact, Exp) ) { +Fact; }
+        if ( not ic ) { +valid_explanation(Conj); }
+        for ( .member(Fact, Exp) ) { -Fact; }
+    }.
+
+
+// update the abduction explanations when the player plays or discards a card
+// and comes to know of its color and rank
+
++!update_abduction_explanations(Slot, Color, Rank) : my_name(Me)
+    <- +has_card_color(Me, Slot, Color) [temp];
+    +has_card_rank(Me, Slot, Color) [temp];
+    .relevant_rules(ic [source(abduction), abd_id(_)], LR);
+
+    -has_card_color(Me, Slot, Color) [temp];
+    -has_card_rank(Me, Slot, Rank) [temp].

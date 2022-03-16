@@ -12,13 +12,13 @@ public class rule_head_body extends DefaultInternalAction {
             if (!args[0].isVar()) {
                 // given a rule, return its head and its body
                 Rule rule = (Rule)args[0];
-                Literal head = (Literal)rule.getHead();
-                Literal body = (Literal)rule.getBody();
+                Literal head = rule.getHead();
+                LogicalFormula body = rule.getBody();
                 return (un.unifies(head, args[1]) && un.unifies(body, args[2]));
             } else {
                 // given the head and the body, build the rule
                 Literal head = (Literal)args[1];
-                LogExpr body = (LogExpr)args[2];
+                LogicalFormula body = (LogicalFormula)args[2];               
                 Rule rule = new Rule(head, body);
                 return un.unifies(rule, args[0]);
             }

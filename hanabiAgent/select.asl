@@ -2,7 +2,7 @@
 // strategy the agent is following, using ``possible worlds reasoning''.
 
 @actInTheGame[atomic]
-+player_turn(Me) : .my_name(Me) & turn_number(Me, 1) & logic_program([Me])
++player_turn(Me) : .my_name(Me) & turn_number(Me, T) & logic_program([Me]) //& .member(T, [1,2])
     <- -+finished_abduction(0);
     !select_action;
     ?my_action(Action);

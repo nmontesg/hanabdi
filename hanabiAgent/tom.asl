@@ -10,26 +10,10 @@
 //              my_name(Me); !adopt_perspective([bob, Me]).
 
 @adoptPerspective1[atomic]
-+!adopt_perspective([Last]) : .length([Last], 1)
-    <- .findall(A, abducible(A), AbdList);
-    .findall(Phi [Annot], knows(Last, Phi [Annot]), PhiList);
-    .relevant_rules(_, AllRules);
-    ?logic_program(LPs);
-    .concat(LPs, [Last], NewLPs);
-    custom.remove_beliefs;
-    +logic_program(NewLPs);
-    for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
-    for ( .member(Rule, AllRules) ) {
-        // abducible/1 rules should NOT be adopted. They interfere with the
-        // abductive reasoning process
-        custom.rule_head_body(Rule, Head, _);
-        Head =.. [Functor, _, _];
-        if ( Functor \== abducible ) { +Rule; }
-    }
-    for ( .member(A, AbdList) ) { +abducible(A); }.
++!adopt_perspective([]).
 
-@adoptPerspectiveN[atomic]
-+!adopt_perspective([H|T]) : .length([H|T], N) & N > 1
+@adoptPerspective2[atomic]
++!adopt_perspective([H|T]) : .length([H|T], N) & N > 0
     <- .findall(Phi [Annot], knows(H, Phi [Annot]), PhiList);
     .relevant_rules(_, AllRules);
     ?logic_program(LPs);
