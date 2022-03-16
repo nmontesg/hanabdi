@@ -15,10 +15,8 @@ public class HanabiAgent extends Agent {
         if (!isBackUpEmpty) {
             throw new JasonException("Back-up BB is not empty");
         }
-        Iterator<Literal> it = bb.iterator();
-        while (it.hasNext()) {
-            Literal belief = it.next();
-            backUp.add(belief);
+        for (Literal l : bb) {
+            backUp.add(l);
         }
     }
 
@@ -29,20 +27,14 @@ public class HanabiAgent extends Agent {
         if (bb.size() != 0) {
             throw new JasonException("The main BB is not empty");
         }
-        Iterator<Literal> itBU = backUp.iterator();
-        while (itBU.hasNext()) {
-            Literal belief = itBU.next();
-            bb.add(belief);
-            backUp.remove(belief);
+        for (Literal l : backUp) {
+            bb.add(l);
         }
+        backUp.clear();
     }
 
     public void removeBeliefs() {
-        Iterator<Literal> it = bb.iterator();
-        while (it.hasNext()) {
-            Literal belief = it.next();
-            bb.remove(belief);
-        }
+        bb.clear();
     }
        
 }
