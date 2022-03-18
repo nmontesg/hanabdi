@@ -72,9 +72,6 @@ ic :-
 
 /* -------- ABDUCTIVE REASONING RULES -------- */
 
-// TODO: extend abductive reasoning rules to handle OR in the context of
-// action selection plans
-
 abduce(Goal1 & Goal2, Delta0, Delta) :-
     custom.expr_operator(Goal1 & Goal2, and) &
     abduce(Goal1, Delta0, Delta1) &

@@ -4,10 +4,6 @@
 { include("hanabiAgent/tom.asl") }
 { include("hanabiAgent/abduction.asl") }
 
-// TODO: have the asl file with the particular strategy as an input (command-line
-// argument). Make repository of rule-based strategies
-{ include("hanabiAgent/strategy.asl") }
-
 /* ---------- Plan to initialize ordered slots for all players ---------- */
 
 @getReady[atomic]
@@ -24,6 +20,8 @@
     for ( .member(P, PlayerList) ) {
         +ordered_slots(P, SlotList);
     }
+    ?strategy_file(Path);
+    .include(Path);
     .send(game_master, tell, ready).
 
 /* ---------- Auxiliary ---------- */

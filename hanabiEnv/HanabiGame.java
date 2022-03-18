@@ -151,6 +151,11 @@ public class HanabiGame extends Environment {
 
         lastRound = false;
         lastPlayer = null;
+
+        // strategy file
+        String strategyFile = args[6];
+        addPercept(Literal.parseLiteral(String.format("strategy_file(\"%s\")", strategyFile)));
+
     }
 
     @Override
