@@ -1,4 +1,4 @@
-package custom;
+package hanabiAgent;
 
 import jason.asSemantics.*;
 import jason.asSyntax.*;

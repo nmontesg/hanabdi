@@ -4,12 +4,12 @@
 +!kqml_received(KQML_Sender_Var, publicAction, play_card(Slot), KQML_MsgId) : true
     <- !abduce(KQML_Sender_Var, play_card(Slot));
     .send(KQML_Sender_Var, tell, finished_abduction).
-    
+
 @kqmlReceivedPublicAction2[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, discard_card(Slot), KQML_MsgId) : true
     <- !abduce(KQML_Sender_Var, discard_card(Slot));
     .send(KQML_Sender_Var, tell, finished_abduction).
-    
+
 @kqmlReceivedPublicAction3[atomic]
 +!kqml_received(KQML_Sender_Var, publicAction, give_hint(HintedPlayer, Mode, Value, SlotList), KQML_MsgId) : true
     <- ?hint_id(Id);
@@ -72,24 +72,32 @@ ic :-
 
 /* -------- ABDUCTIVE REASONING RULES -------- */
 
+// TODO: extend abductive reasoning rules to handle OR in the context of
+// action selection plans
+
 abduce(Goal1 & Goal2, Delta0, Delta) :-
-    custom.conjunction(Goal1 & Goal2) &
+    custom.expr_operator(Goal1 & Goal2, and) &
     abduce(Goal1, Delta0, Delta1) &
     abduce(Goal2, Delta1, Delta).
 
-abduce(Goal, Delta, Delta) :-
-    not custom.conjunction(Goal) & Goal.
+abduce(Goal1 | Goal2, Delta0, Delta) :-
+    custom.expr_operator(Goal1 | Goal2, or) &
+    (abduce(Goal1, Delta0, Delta) |
+    abduce(Goal2, Delta0, Delta)).
 
 abduce(Goal, Delta, Delta) :-
-    not custom.conjunction(Goal) & not Goal &
+    not custom.expr_operator(Goal, _) & Goal.
+
+abduce(Goal, Delta, Delta) :-
+    not custom.expr_operator(Goal, _) & not Goal &
     abducible(Goal) & .member(Goal, Delta).
 
 abduce(Goal, Delta, [Goal|Delta]) :-
-    not custom.conjunction(Goal) & not Goal &
+    not custom.expr_operator(Goal, _) & not Goal &
     abducible(Goal) & not .member(Goal, Delta).
 
 abduce(Goal, Delta0, Delta) :-
-    not custom.conjunction(Goal) & not Goal & not abducible(Goal) &
+    not custom.expr_operator(Goal, _) & not Goal & not abducible(Goal) &
     .relevant_rules(Goal, RL) & .length(RL, N) & N > 0 &
     .member(R, RL) &
     custom.unify_goal_rule(Goal, R, UnifiedR) & 
@@ -112,7 +120,7 @@ abduce(Goal, Delta0, Delta) :-
 
 @abduction[atomic]
 +!abduce(Player, Action) : true
-    <- custom.backup_beliefs;
+    <- hanabiAgent.backup_beliefs;
     !adopt_perspective([Player]);
     .findall(Plan, .relevant_plan({+? action(Action)}, Plan), LP);
     for ( .member(P, LP) ) {
@@ -124,25 +132,27 @@ abduce(Goal, Delta0, Delta) :-
     }
     // save the abduced explanations in a list and recover my original BB
     .findall(E, abductive_explanation(E), AllAbdExpl);
-    custom.remove_beliefs;
-    custom.recover_beliefs;
+    hanabiAgent.remove_beliefs;
+    hanabiAgent.recover_beliefs;
     !refine_abduced_explanations(AllAbdExpl).
 
 
 @refineAbducedExplanations1[atomic]
 +!refine_abduced_explanations(L) : .length(L, N) & N > 0
     <- for ( .member(Exp, L) ) { !validate_explanation(Exp); }
-    .findall(E, valid_explanation(E), ValidExpls);
-    .findall(C, valid_explanation(C), ListValidExpls);
+    .findall(E, valid_explanation(E), ListValidExpls);
+    .findall(NE, negated_explanation(NE), ListNegExpls);
     if ( .length(ListValidExpls, V) & V > 0 ) {
-        custom.list2conjunction(ListValidExpls, 1, NegatedDNF);
+        custom.list2formula(ListValidExpls, 0, "or", DNF);
+        custom.list2formula(ListNegExpls, 0, "and", NegDNF);
         ?abd_id(Id);
-        custom.rule_head_body(NewIC, ic [source(abduction), abd_id(Id)], NegatedDNF);
-        .print(NewIC);
+        +abduction_explanation(DNF) [source(abduction), abd_id(Id)];
+        custom.rule_head_body(NewIC, ic [source(abduction), abd_id(Id)], NegDNF);
         +NewIC;
         -+abd_id(Id+1);
     }
-    .abolish(valid_explanation(_)).
+    .abolish(valid_explanation(_));
+    .abolish(negated_explanation(_)).
 
 
 @refineAbducedExplanations2[atomic]
@@ -151,23 +161,37 @@ abduce(Goal, Delta0, Delta) :-
 
 @validateExplanation[atomic]
 +!validate_explanation(Exp) : true
-    <- custom.list2conjunction(Exp, 0, Conj);
+    <- custom.list2formula(Exp, 0, "and", Conj);
     // check that the explanation is *informative*, i.e. cannot be derived from the BB
     if ( not Conj ) {
         // check that the explanation is consistent with the ICs
         for ( .member(Fact, Exp) ) { +Fact; }
-        if ( not ic ) { +valid_explanation(Conj); }
+        if ( not ic ) {
+            custom.list2formula(Exp, 1, "or", NegConj);
+            +valid_explanation(Conj);
+            +negated_explanation(NegConj);
+        }
         for ( .member(Fact, Exp) ) { -Fact; }
     }.
-
 
 // update the abduction explanations when the player plays or discards a card
 // and comes to know of its color and rank
 
+@updateExplanations[atomic]
 +!update_abduction_explanations(Slot, Color, Rank) : my_name(Me)
     <- +has_card_color(Me, Slot, Color) [temp];
     +has_card_rank(Me, Slot, Color) [temp];
-    .relevant_rules(ic [source(abduction), abd_id(_)], LR);
-
+    .findall(
+        abduction_explanation(DNF) [source(abduction), abd_id(Id)],
+        abduction_explanation(DNF) [source(abduction), abd_id(Id)],
+        Explanations
+    );
+    for ( .member(abduction_explanation(DNF) [source(abduction), abd_id(Id)], Explanations) ) {
+        if ( DNF ) {
+            -abduction_explanation(DNF) [source(abduction), abd_id(Id)];
+            .relevant_rules(ic [source(abduction), abd_id(Id)], [IC]);
+            -IC;
+        }
+    }
     -has_card_color(Me, Slot, Color) [temp];
     -has_card_rank(Me, Slot, Rank) [temp].

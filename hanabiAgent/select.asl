@@ -2,11 +2,11 @@
 // strategy the agent is following, using ``possible worlds reasoning''.
 
 @actInTheGame[atomic]
-+player_turn(Me) : .my_name(Me) & turn_number(Me, T) & logic_program([Me]) //& .member(T, [1,2])
++player_turn(Me) : .my_name(Me)
     <- -+finished_abduction(0);
     !select_action;
     ?my_action(Action);
-    .print("selected action ", Action);
+    .log(info, Action);
     !share_public_action(Action).
 
 @sharePublicAction1[atomic]

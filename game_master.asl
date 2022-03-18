@@ -10,7 +10,7 @@ ready_agents(0).
     ?cards_per_player(N);
     .findall(X, .range(X, 1, N), SlotList);
     for ( .member(Ag, PlayerList) ) {
-        .create_agent(Ag, "player_main.asl", [agentClass("custom.HanabiAgent")]);
+        .create_agent(Ag, "player_main.asl", [agentClass("hanabiAgent.HanabiAgent")]);
         +ordered_slots(Ag, SlotList);
     }
     .broadcast(achieve, get_ready).

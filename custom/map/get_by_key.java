@@ -1,4 +1,4 @@
-package custom;
+package custom.map;
 
 import jason.*;
 import jason.asSyntax.*;

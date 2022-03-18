@@ -210,8 +210,8 @@ public class HanabiGame extends Environment {
     private boolean moveToNextPlayer(String agent) {
         if (lastRound && agent.equals(lastPlayer)) {
             stop();
+            return true;
         }
-
         removePerceptsByUnif(Literal.parseLiteral("player_turn(_)"));
         playerTurn = playerTurn % numPlayers + 1;
         String movingPlayer = agents.get(playerTurn - 1);
@@ -323,6 +323,7 @@ public class HanabiGame extends Environment {
             // if current score == maxScore: finish execution of the game
             if (score == maxScore) {
                 stop();
+                return true;
             }
             // complete stack has bonus: plus one information token
             if (rank == numRanks && numInfoTokens < maxInfoTokens) {
@@ -342,6 +343,7 @@ public class HanabiGame extends Environment {
                 removePerceptsByUnif(Literal.parseLiteral(String.format("score(_)")));
                 addPercept(Literal.parseLiteral(String.format("score(%d)",score)));
                 stop();
+                return true;
             }
             // discard the badly played card
             numDiscardedCards += 1;
@@ -423,12 +425,10 @@ public class HanabiGame extends Environment {
     @Override
     public void stop() {
         System.out.println(String.format("Game finished with score %d.", score));
-        // FIXME: actually exit from running the MAS. Does this work?
-        try{
-            // TODO: wait a bit so agents print
+        clearAllPercepts();
+        try {
             getEnvironmentInfraTier().getRuntimeServices().stopMAS();
-        }
-        catch (Exception exc) {
+        } catch (Exception exc) {
             System.out.println(exc.getMessage());
         }
     }

@@ -19,17 +19,16 @@
 
 @resumeAction[atomic]
 +finished_abduction(M) : num_players(N) & M == N-1
-    <- .print("everyone done with abduction\n\n\n");
-    ?my_action(Action);
+    <- ?my_action(Action);
     !Action;
     .abolish(my_action(_)).
 
 @playCard[atomic]
 +!play_card(Slot) : my_name(Me)
-    <- custom.new_map(Map);
+    <- custom.map.new_map(Map);
     play_card(Slot, Map);
-    custom.get_by_key(Map, C, Color);
-    custom.get_by_key(Map, R, Rank);
+    custom.map.get_by_key(Map, C, Color);
+    custom.map.get_by_key(Map, R, Rank);
     !update_abduction_explanations(Slot, Color, Rank);
     // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);
@@ -42,10 +41,10 @@
 
 @discardCard[atomic]
 +!discard_card(Slot) : my_name(Me)
-    <- custom.new_map(Map);
+    <- custom.map.new_map(Map);
     discard_card(Slot, Map);
-    custom.get_by_key(Map, C, Color);
-    custom.get_by_key(Map, R, Rank);
+    custom.map.get_by_key(Map, C, Color);
+    custom.map.get_by_key(Map, R, Rank);
     !update_abduction_explanations(Slot, Color, Rank);
     // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);

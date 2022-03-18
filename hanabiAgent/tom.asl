@@ -18,11 +18,12 @@
     .relevant_rules(_, AllRules);
     ?logic_program(LPs);
     .concat(LPs, [H], NewLPs);
-    custom.remove_beliefs;
+    hanabiAgent.remove_beliefs;
     +logic_program(NewLPs);
     for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
     for ( .member(Rule, AllRules) ) { +Rule; }
     !adopt_perspective(T).
+
 
 /* -------- First-order Theory of Mind -------- */
 
