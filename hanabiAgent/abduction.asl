@@ -115,8 +115,8 @@ abduce(Goal, Delta0, Delta) :-
 // with the BB (from the perspective of the other), and hence it could not
 // have been selected in the first place.
 
-@abduction[atomic]
-+!abduce(Player, Action) : true
+@abduceOn[atomic]
++!abduce(Player, Action) : abduction(on)
     <- hanabiAgent.backup_beliefs;
     !adopt_perspective([Player]);
     .findall(Plan, .relevant_plan({+? action(Action)}, Plan), LP);
@@ -132,6 +132,10 @@ abduce(Goal, Delta0, Delta) :-
     hanabiAgent.remove_beliefs;
     hanabiAgent.recover_beliefs;
     !refine_abduced_explanations(AllAbdExpl).
+
+
+@abduceOff[atomic]
++!abduce(_, _) : abduction(off).
 
 
 @refineAbducedExplanations1[atomic]
@@ -174,8 +178,8 @@ abduce(Goal, Delta0, Delta) :-
 // update the abduction explanations when the player plays or discards a card
 // and comes to know of its color and rank
 
-@updateExplanations[atomic]
-+!update_abduction_explanations(Slot, Color, Rank) : my_name(Me)
+@updateExplanationsOn[atomic]
++!update_abduction_explanations(Slot, Color, Rank) : my_name(Me) & abduction(on)
     <- +has_card_color(Me, Slot, Color) [temp];
     +has_card_rank(Me, Slot, Color) [temp];
     .findall(
@@ -192,3 +196,6 @@ abduce(Goal, Delta0, Delta) :-
     }
     -has_card_color(Me, Slot, Color) [temp];
     -has_card_rank(Me, Slot, Rank) [temp].
+
+@updateExplanationsOff[atomic]
++!update_abduction_explanations(_, _, _) : my_name(Me) & abduction(off).

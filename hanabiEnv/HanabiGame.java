@@ -34,6 +34,7 @@ public class HanabiGame extends Environment {
     private String lastPlayer;
 
     private int hintId;
+    private boolean abduction;
 
     @Override
     public void init(String[] args) {
@@ -152,8 +153,20 @@ public class HanabiGame extends Environment {
         lastRound = false;
         lastPlayer = null;
 
+        // abduction on or off
+        String abdOnOff = args[6];
+        if (abdOnOff.equals("on")) {
+            abduction = true;
+        } else if (abdOnOff.equals("off")) {
+            abduction = false;
+        } else {
+            throw new IllegalArgumentException("abduction mode must be either 'on' or 'off'");
+        }
+
+        addPercept(Literal.parseLiteral(String.format("abduction(%s)", abdOnOff)));
+
         // strategy file
-        String strategyFile = args[6];
+        String strategyFile = args[7];
         addPercept(Literal.parseLiteral(String.format("strategy_file(\"%s\")", strategyFile)));
 
     }

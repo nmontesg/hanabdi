@@ -81,25 +81,30 @@ potential_instantation([H|T], [NewH|NewT]) :-
     potential_instantation(T, NewT).
 
 partially_instantiate(LHS & RHS, Unknowns, NewUnknowns) :-
-    custom.conjunction(LHS & RHS) &
+    custom.expr_operator(LHS & RHS, and) &
     partially_instantiate(LHS, Unknowns, Unknowns1) &
     partially_instantiate(RHS, Unknowns1, NewUnknowns).
 
+partially_instantiate(LHS | RHS, Unknowns, NewUnknowns) :-
+    custom.expr_operator(LHS | RHS, or) &
+    (partially_instantiate(LHS, Unknowns, NewUnknowns) |
+    partially_instantiate(RHS, Unknowns, NewUnknowns)).
+
 partially_instantiate(Literal, Unknowns, Unknowns) :-
-    not custom.conjunction(Literal) & Literal.
+    not custom.expr_operator(Literal, _) & Literal.
 
 partially_instantiate(Literal, Unknowns, NewUnknowns) :-
-    not custom.conjunction(Literal) & not Literal & not unknown(Literal) &
+    not custom.expr_operator(Literal, _) & not Literal & not unknown(Literal) &
     .relevant_rules(Literal, RL) & .length(RL, N) & N > 0 & .member(R, RL) &
     custom.unify_goal_rule(Literal, R, UnifiedR) & 
     custom.rule_head_body(UnifiedR, _, Body) &
     partially_instantiate(Body, Unknowns, NewUnknowns).
 
 partially_instantiate(Literal, Unknowns, Unknowns) :-
-    not custom.conjunction(Literal) & not Literal &
+    not custom.expr_operator(Literal, _) & not Literal &
     unknown(Literal) & .member(Literal, Unknowns).
 
 partially_instantiate(Literal, Unknowns, [SkolemLiteral|Unknowns]) :-
-    not custom.conjunction(Literal) & not Literal &
+    not custom.expr_operator(Literal, _) & not Literal &
     unknown(Literal) & not .member(Literal, Unknowns) &
     skolemize(Literal, SkolemLiteral).

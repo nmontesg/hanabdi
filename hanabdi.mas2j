@@ -10,13 +10,12 @@
     noviembre 08, 2021 - 09:12:47
 */
 
-// TODO: command-line arguments?
-
 MAS hanabdi {
 
-    // numPlayers, numLives, numInfoTokens, numColors, numRanks, seed, path to strategy file
+    // numPlayers, numLives, numInfoTokens, numColors, numRanks, seed,
+    // abduction on/off, path to strategy file
     environment:
-        hanabiEnv.HanabiGame(4, 3, 8, 5, 5, 10, "hanabiAgent/strategy.asl")
+        hanabiEnv.HanabiGame(4, 3, 8, 5, 5, 10, on, "hanabiAgent/strategy.asl")
 
     agents:
         game_master;
