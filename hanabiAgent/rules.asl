@@ -3,14 +3,6 @@
 
 // No abducibles can be in the head of rules
 
-~has_card_color(Player, Slot, C1) :-
-    player(Player) & slot(Slot) & color(C1) & color(C2) & C1 \== C2 &
-    has_card_color(Player, Slot, C2).
-
-~has_card_rank(Player, Slot, R1) :-
-    player(Player) & slot(Slot) & rank(R1) & rank(R2) & R1 \== R2 &
-    has_card_rank(Player, Slot, R2).
-
 has_playable_card(Player, Slot) :-
     player(Player) & slot(Slot) & color(Color) & rank(Rank) &
     has_card_color(Player, Slot, Color) &
@@ -67,24 +59,3 @@ oldest_unhinted_slot(Player, [H|T], E) :-
 // there are available info token and some are spent (so discard is available)
 available_info_tokens :- num_info_tokens(Tokens) & Tokens > 0.
 spent_info_tokens :- num_info_tokens(Tokens) & max_info_tokens(Total) & Tokens < Total.
-
-// number of cards that have been disclosed to me EXCEPT the identity of the 
-// card of Player at position Slot
-disclosed_cards(Color, Rank, Player, Slot, N) :-
-    color(Color) & rank(Rank) & player(Player) & slot(Slot) &
-    .findall(
-        has_card(P, S, Color, Rank),
-        has_card_color(P, S, Color) & has_card_rank(P, S, Rank) & slot(S) & P \== Player,
-        L1
-    ) & .length(L1, N1) &
-    .findall(
-        has_card(Player, S, Color, Rank),
-        has_card_color(Player, S, Color) & has_card_rank(Player, S, Rank) & S \== Slot,
-        L2
-    ) & .length(L2, N2) &
-    discarded(Color, Rank, N3) &
-    card_in_stack(Color, Rank, N4) &
-    N = N1 + N2 + N3 + N4.
-
-card_in_stack(Color, Rank, 0) :- stack(Color, Stack) & Stack < Rank.
-card_in_stack(Color, Rank, 1) :- stack(Color, Stack) & Stack >= Rank.

@@ -43,6 +43,14 @@ abducible(has_card_rank(Player, Slot, R1)) :-
 
 /* -------- INTEGRITY CONSTRAINTS -------- */
 
+~has_card_color(Player, Slot, C1) :-
+    player(Player) & slot(Slot) & color(C1) & color(C2) & C1 \== C2 &
+    has_card_color(Player, Slot, C2).
+
+~has_card_rank(Player, Slot, R1) :-
+    player(Player) & slot(Slot) & rank(R1) & rank(R2) & R1 \== R2 &
+    has_card_rank(Player, Slot, R2).
+
 ic :-
     player(P) & slot(S) & color(C1) & color(C2) & C1 \== C2 &
     has_card_color(P, S, C1) & has_card_color(P, S, C2).
@@ -58,6 +66,27 @@ ic :-
 ic :-
     player(P) & slot(S) & rank(R) &
     has_card_rank(P, S, R) & ~has_card_rank(P, S, R).
+
+// number of cards that have been disclosed to me EXCEPT the identity of the 
+// card of Player at position Slot
+disclosed_cards(Color, Rank, Player, Slot, N) :-
+    color(Color) & rank(Rank) & player(Player) & slot(Slot) &
+    .findall(
+        has_card(P, S, Color, Rank),
+        has_card_color(P, S, Color) & has_card_rank(P, S, Rank) & slot(S) & P \== Player,
+        L1
+    ) & .length(L1, N1) &
+    .findall(
+        has_card(Player, S, Color, Rank),
+        has_card_color(Player, S, Color) & has_card_rank(Player, S, Rank) & S \== Slot,
+        L2
+    ) & .length(L2, N2) &
+    discarded(Color, Rank, N3) &
+    card_in_stack(Color, Rank, N4) &
+    N = N1 + N2 + N3 + N4.
+
+card_in_stack(Color, Rank, 0) :- stack(Color, Stack) & Stack < Rank.
+card_in_stack(Color, Rank, 1) :- stack(Color, Stack) & Stack >= Rank.
 
 // An agent can only have a card of Color and Rank at any
 // Slot of their holder if the number of cards of that Color and Rank that have

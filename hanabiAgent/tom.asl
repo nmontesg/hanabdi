@@ -21,7 +21,10 @@
     hanabiAgent.remove_beliefs;
     +logic_program(NewLPs);
     for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
-    for ( .member(Rule, AllRules) ) { +Rule; }
+    for ( .member(Rule, AllRules) ) {
+        custom.rule_head_body(Rule, Head, _);
+        if ( Head \== ic [source(abduction)] ) { +Rule; }
+    }
     !adopt_perspective(T).
 
 

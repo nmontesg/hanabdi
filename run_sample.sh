@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # variables
-export NUM_PLAYERS=4
+export NUM_PLAYERS=5
 export NUM_LIVES=3
 export NUM_INFO_TOKENS=8
 export NUM_COLORS=5
 export NUM_RANKS=5
 export ABDUCTION="on"
-export STRATEGY_FILE="hanabiAgent\/strategy.asl"
-export RESULTS_FILE="results.txt"
+export STRATEGY_FILE="strategies\/basic.asl"
+export RESULTS_FILE="results\/results.txt"
 
 # write header of results file
 echo "num_players,num_lives,num_info_tokens,num_colors,num_ranks,seed,abduction,strategy_file,score,hints" > $RESULTS_FILE

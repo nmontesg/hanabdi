@@ -1,3 +1,0 @@
-num_players,num_lives,num_info_tokens,num_colors,num_ranks,seed,abduction,strategy_file,score,hints
-4,3,8,5,5,1,true,hanabiAgent/strategy.asl,7,27
-4,3,8,5,5,2,true,hanabiAgent/strategy.asl,10,25
