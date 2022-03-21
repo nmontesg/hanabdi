@@ -1,0 +1,11 @@
+MAS hanabdi {
+
+    // numPlayers, numLives, numInfoTokens, numColors, numRanks, seed,
+    // abduction on/off, path to strategy file, file to write results
+    environment:
+        hanabiEnv.HanabiGame(NUM_PLAYERS, NUM_LIVES, NUM_INFO_TOKENS, NUM_COLORS, NUM_RANKS, SEED, ABDUCTION, STRATEGY_FILE, RESULTS_FILE)
+
+    agents:
+        game_master;
+
+}
