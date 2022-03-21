@@ -1,0 +1,2 @@
+4,3,8,5,5,10,true,hanabiAgent/strategy.asl,9,25
+4,3,8,5,5,100,true,hanabiAgent/strategy.asl,10,26

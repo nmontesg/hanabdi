@@ -179,8 +179,9 @@ abduce(Goal, Delta0, Delta) :-
 // and comes to know of its color and rank
 
 @updateExplanationsOn[atomic]
-+!update_abduction_explanations(Slot, Color, Rank) : my_name(Me) & abduction(on)
-    <- +has_card_color(Me, Slot, Color) [temp];
++!update_abduction_explanations(Slot, Color, Rank) : abduction(on)
+    <- .my_name(Me);
+    +has_card_color(Me, Slot, Color) [temp];
     +has_card_rank(Me, Slot, Color) [temp];
     .findall(
         abduction_explanation(DNF) [source(abduction), abd_id(Id)],
@@ -198,4 +199,4 @@ abduce(Goal, Delta0, Delta) :-
     -has_card_rank(Me, Slot, Rank) [temp].
 
 @updateExplanationsOff[atomic]
-+!update_abduction_explanations(_, _, _) : my_name(Me) & abduction(off).
++!update_abduction_explanations(_, _, _) : abduction(off).

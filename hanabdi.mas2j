@@ -13,9 +13,9 @@
 MAS hanabdi {
 
     // numPlayers, numLives, numInfoTokens, numColors, numRanks, seed,
-    // abduction on/off, path to strategy file
+    // abduction on/off, path to strategy file, file to write results
     environment:
-        hanabiEnv.HanabiGame(4, 3, 8, 5, 5, 10, on, "hanabiAgent/strategy.asl")
+        hanabiEnv.HanabiGame(4, 3, 8, 5, 5, 100, on, "hanabiAgent/strategy.asl", "results.txt")
 
     agents:
         game_master;

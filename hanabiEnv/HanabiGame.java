@@ -2,6 +2,8 @@ package hanabiEnv;
 
 import java.util.List;
 import java.util.Random;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.Collections;
 import jason.asSyntax.*;
 import jason.asSemantics.*;
@@ -34,7 +36,10 @@ public class HanabiGame extends Environment {
     private String lastPlayer;
 
     private int hintId;
+    private int seed;
     private boolean abduction;
+    private String strategyFile;
+    private String resultsFile;
 
     @Override
     public void init(String[] args) {
@@ -106,7 +111,7 @@ public class HanabiGame extends Environment {
         }
 
         // set seed of the random card dealer
-        int seed = Integer.parseInt(args[5]);
+        seed = Integer.parseInt(args[5]);
         addPercept(Literal.parseLiteral(String.format("seed(%d)", seed)));
         cardDealer.setSeed(seed);
 
@@ -166,8 +171,11 @@ public class HanabiGame extends Environment {
         addPercept(Literal.parseLiteral(String.format("abduction(%s)", abdOnOff)));
 
         // strategy file
-        String strategyFile = args[7];
+        strategyFile = args[7];
         addPercept(Literal.parseLiteral(String.format("strategy_file(\"%s\")", strategyFile)));
+
+        // results file
+        resultsFile = args[8];
 
     }
 
@@ -228,6 +236,8 @@ public class HanabiGame extends Environment {
     private boolean moveToNextPlayer(String agent) {
         if (lastRound && agent.equals(lastPlayer)) {
             stop();
+            // DEBUG
+            System.out.println("stop called by " + agent);
             return true;
         }
         removePerceptsByUnif(Literal.parseLiteral("player_turn(_)"));
@@ -341,6 +351,8 @@ public class HanabiGame extends Environment {
             // if current score == maxScore: finish execution of the game
             if (score == maxScore) {
                 stop();
+                // DEBUG
+                System.out.println("stop called by " + agent);
                 return true;
             }
             // complete stack has bonus: plus one information token
@@ -361,6 +373,8 @@ public class HanabiGame extends Environment {
                 removePerceptsByUnif(Literal.parseLiteral(String.format("score(_)")));
                 addPercept(Literal.parseLiteral(String.format("score(%d)",score)));
                 stop();
+                // DEBUG
+                System.out.println("stop called by " + agent);
                 return true;
             }
             // discard the badly played card
@@ -444,11 +458,22 @@ public class HanabiGame extends Environment {
     public void stop() {
         System.out.println(String.format("Game finished with score %d.", score));
         clearAllPercepts();
+
         try {
-            getEnvironmentInfraTier().getRuntimeServices().stopMAS();
-        } catch (Exception exc) {
-            System.out.println(exc.getMessage());
+            if (!resultsFile.isEmpty()) {
+                FileWriter fw = new FileWriter(resultsFile, true);
+                BufferedWriter bw = new BufferedWriter(fw);
+                bw.write(String.format("%d,%d,%d,%d,%d,%d,%b,%s,%d,%d", numPlayers,
+                    maxLives, maxInfoTokens, numColors, numRanks, seed, abduction,
+                    strategyFile, score, hintId-1));
+                bw.newLine();
+                bw.close(); 
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
+
+        System.exit(0);
     }
 
 }
