@@ -13,7 +13,7 @@ export RESULTS_FILE="results\/results.txt"
 # write header of results file
 echo "num_players,num_lives,num_info_tokens,num_colors,num_ranks,seed,abduction,strategy_file,score,hints" > $RESULTS_FILE
 
-for i in {1..2}
+for i in {1..500}
 do
    cp hanabdi_template.mas2j hanabdi.mas2j
    sed -i "s/NUM_PLAYERS/$NUM_PLAYERS/" hanabdi.mas2j

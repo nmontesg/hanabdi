@@ -14,27 +14,27 @@
 +!kqml_received(KQML_Sender_Var, publicAction, give_hint(HintedPlayer, Mode, Value, SlotList), KQML_MsgId) : true
     <- ?hint_id(Id);
     +hint(Id, KQML_Sender_Var, HintedPlayer, Mode, Value, SlotList);
-    // first update explicit information conveyed by the hint before abducing
+    // update explicit information conveyed by the hint before refining abduced explanations
     .concat("has_card_", Mode, String);
     .term2string(Term, String);
     ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
-        Belief =.. [Term, [HintedPlayer, S, Value], [source(hint), hint_id(Id)]];
+        Belief =.. [Term, [HintedPlayer, S, Value], [source(temp_abduction), hint_id(Id)]];
         if ( .member(S, SlotList) ) { +Belief; } else { +(~Belief); }
     }
-    !abduce(KQML_Sender_Var, give_hint(HintedPlayer, Mode, Value));
+    !abduce(KQML_Sender_Var, give_hint(HintedPlayer, Mode, Value));   
     .send(KQML_Sender_Var, tell, finished_abduction).
     
 
 /* -------- ABDUCIBLE ATOMS -------- */
 
-abducible(has_card_color(Player, Slot, C1)) :-
+abducible(has_card_color(Player, Slot, C1) [source(percept)]) :-
     player(Player) & logic_program(CurrentLP) & .member(Player, CurrentLP) &
     slot(Slot) & color(C1) & color(C2) & C2 \== C1 &
     not has_card_color(Player, Slot, C2) & 
     not ~has_card_color(Player, Slot, C1).
 
-abducible(has_card_rank(Player, Slot, R1)) :-
+abducible(has_card_rank(Player, Slot, R1) [source(percept)]) :-
     player(Player) & logic_program(CurrentLP) & .member(Player, LPs) &
     slot(Slot) & rank(R1) & rank(R2) & R1 \== R2 &
     not has_card_rank(Player, Slot, R2) & 
@@ -102,14 +102,9 @@ ic :-
 /* -------- ABDUCTIVE REASONING RULES -------- */
 
 abduce(Goal1 & Goal2, Delta0, Delta) :-
-    custom.expr_operator(Goal1 & Goal2, and) &
+    custom.expr_operator(Goal1 & Goal2, "and") &
     abduce(Goal1, Delta0, Delta1) &
     abduce(Goal2, Delta1, Delta).
-
-abduce(Goal1 | Goal2, Delta0, Delta) :-
-    custom.expr_operator(Goal1 | Goal2, or) &
-    (abduce(Goal1, Delta0, Delta) |
-    abduce(Goal2, Delta0, Delta)).
 
 abduce(Goal, Delta, Delta) :-
     not custom.expr_operator(Goal, _) & Goal.
@@ -153,22 +148,35 @@ abduce(Goal, Delta0, Delta) :-
         custom.decompose_plan(P, _, _, Context, _);
         .setof(Delta, abduce(Context, [], Delta), LExpl);
         for ( .member(Expl, LExpl) ) { 
-            if ( .length(Expl, N) & N > 0) { +abductive_explanation(Expl); }
+            if ( .length(Expl, N) & N > 0) { +potential_explanation(Expl); }
         }
     }
     // save the abduced explanations in a list and recover my original BB
-    .findall(E, abductive_explanation(E), AllAbdExpl);
+    .findall(E, potential_explanation(E), PotentialExpls);
     hanabiAgent.remove_beliefs;
     hanabiAgent.recover_beliefs;
-    !refine_abduced_explanations(AllAbdExpl).
+    !change_hint_info_source;
+    !refine_potential_explanations(PotentialExpls).
 
 
 @abduceOff[atomic]
 +!abduce(_, _) : abduction(off).
 
 
-@refineAbducedExplanations1[atomic]
-+!refine_abduced_explanations(L) : .length(L, N) & N > 0
+@changeHintInfoSource[atomic]
++!change_hint_info_source : true
+    <- ?hint_id(Id);
+    .findall(B, .belief(B [source(temp_abduction), hint_id(Id)]), L);
+    for ( .member(M, L) ) {
+        M =.. [Term, Args, _];
+        -M [source(temp_abduction), hint_id(Id)];
+        NewM =.. [Term, Args, [source(hint), hint_id(Id)]];
+        +NewM;
+    }.
+
+
+@refinePotentialExplanations1[atomic]
++!refine_potential_explanations(L) : .length(L, N) & N > 0
     <- for ( .member(Exp, L) ) { !validate_explanation(Exp); }
     .findall(E, valid_explanation(E), ListValidExpls);
     .findall(NE, negated_explanation(NE), ListNegExpls);
@@ -179,14 +187,15 @@ abduce(Goal, Delta0, Delta) :-
         +abduction_explanation(DNF) [source(abduction), abd_id(Id)];
         custom.rule_head_body(NewIC, ic [source(abduction), abd_id(Id)], NegDNF);
         +NewIC;
+        .log(info, DNF);
         -+abd_id(Id+1);
     }
     .abolish(valid_explanation(_));
     .abolish(negated_explanation(_)).
 
 
-@refineAbducedExplanations2[atomic]
-+!refine_abduced_explanations(L) : .length(L, 0).
+@refinePotentialExplanations2[atomic]
++!refine_potential_explanations(L) : .length(L, 0).
 
 
 @validateExplanation[atomic]
@@ -195,14 +204,22 @@ abduce(Goal, Delta0, Delta) :-
     // check that the explanation is *informative*, i.e. cannot be derived from the BB
     if ( not Conj ) {
         // check that the explanation is consistent with the ICs
-        for ( .member(Fact, Exp) ) { +Fact; }
+        for ( .member(Fact, Exp) ) {
+            if ( not Fact ) {
+                +informative_fact(Fact);
+                +Fact;
+            }
+        }
         if ( not ic ) {
-            custom.list2formula(Exp, 1, "or", NegConj);
-            +valid_explanation(Conj);
+            .findall(F, informative_fact(F), RefinedExpl);
+            custom.list2formula(RefinedExpl, 0, "and", PosConj);
+            custom.list2formula(RefinedExpl, 1, "or", NegConj);
+            +valid_explanation(PosConj);
             +negated_explanation(NegConj);
         }
         for ( .member(Fact, Exp) ) { -Fact; }
-    }.
+    }
+    .abolish(informative_fact(_)).
 
 // update the abduction explanations when the player plays or discards a card
 // and comes to know of its color and rank

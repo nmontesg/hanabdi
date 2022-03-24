@@ -2,11 +2,11 @@
 // strategy the agent is following, using ``possible worlds reasoning''.
 
 @actInTheGame[atomic]
-+player_turn(Me) : .my_name(Me)
++player_turn(Me) : .my_name(Me) & .member(Me, [alice, bob, cathy])
     <- -+finished_abduction(0);
     !select_action;
-    ?my_action(Action);
-    .log(info, Action);
+    ?my_action(Action) [Label];
+    .log(info, Action, " ", Label);
     !share_public_action(Action).
 
 @sharePublicAction1[atomic]
@@ -38,13 +38,13 @@
 
 @evaluatePlan[atomic]
 +!evaluate_plan(Plan) : true
-    <- custom.decompose_plan(Plan, _, _, Context, _);
+    <- custom.decompose_plan(Plan, Label, _, Context, _);
     // find potential (partial) instantiations for action selection plan
     .setof(F, partially_instantiate(Context, [], F), SkolemInsts);
-    for ( .member(PartialInst, SkolemInsts) ) { !evaluate_partial_instantiation(PartialInst); }.
+    for ( .member(PartialInst, SkolemInsts) ) { !evaluate_partial_instantiation(PartialInst, Label); }.
 
 @evaluatePartialInst1[atomic]
-+!evaluate_partial_instantiation(Skolem) : .length(Skolem, N) & N > 0
++!evaluate_partial_instantiation(Skolem, Label) : .length(Skolem, N) & N > 0
     <- .findall(W, potential_instantation(Skolem, W), Worlds);
     .abolish(selected_action(_, _));
     for ( .member(W, Worlds) ) {
@@ -59,14 +59,14 @@
     .abolish(selected_action(_, _));
     if ( .length(SelectedActions, 1) ) {
         .nth(0, SelectedActions, FinalAction);
-        -+my_action(FinalAction);
+        -+my_action(FinalAction) [plan(Label)];
         .succeed_goal(select_action);
     }.
 
 @evaluatePartialInst2[atomic]
-+!evaluate_partial_instantiation([]) : true
++!evaluate_partial_instantiation([], Label) : true
     <- ?action(A);
-    -+my_action(A);
+    -+my_action(A) [plan(Label)];
     .succeed_goal(select_action).
 
 unknown(has_card_color(Me, Slot, Color)) :- my_name(Me) & slot(Slot) & color(Color).
@@ -81,14 +81,9 @@ potential_instantation([H|T], [NewH|NewT]) :-
     potential_instantation(T, NewT).
 
 partially_instantiate(LHS & RHS, Unknowns, NewUnknowns) :-
-    custom.expr_operator(LHS & RHS, and) &
+    custom.expr_operator(LHS & RHS, "and") &
     partially_instantiate(LHS, Unknowns, Unknowns1) &
     partially_instantiate(RHS, Unknowns1, NewUnknowns).
-
-partially_instantiate(LHS | RHS, Unknowns, NewUnknowns) :-
-    custom.expr_operator(LHS | RHS, or) &
-    (partially_instantiate(LHS, Unknowns, NewUnknowns) |
-    partially_instantiate(RHS, Unknowns, NewUnknowns)).
 
 partially_instantiate(Literal, Unknowns, Unknowns) :-
     not custom.expr_operator(Literal, _) & Literal.

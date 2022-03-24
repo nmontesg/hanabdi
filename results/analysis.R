@@ -1,8 +1,10 @@
-library(ggplot2)
-
-dummy.data <- read.csv("results.txt")
-
-hist <- ggplot(dummy.data, aes(x=score)) + 
-  geom_histogram(binwidth=1)
+dummy.data <- read.csv("basic_results.txt")
 
 print(hist)
+
+mean(dummy.data$score)
+sd(dummy.data$score)
+
+boxplot(dummy.data$score)
+
+hist(dummy.data$score, breaks=15)

@@ -10,23 +10,23 @@ public class expr_operator extends DefaultInternalAction {
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         try {
             LogExpr expr = (LogExpr)args[0];
-            Atom operator;
+            StringTermImpl operator;
 
             switch (expr.getOp()) {
                 case and:
-                    operator = new Atom("and");
+                    operator = new StringTermImpl("and");
                     break;
                 
                 case or:
-                    operator = new Atom("or");
+                    operator = new StringTermImpl("or");
                     break;
 
                 case not:
-                    operator = new Atom("not");
+                    operator = new StringTermImpl("not");
                     break;
              
                 default:
-                    operator = new Atom("none");
+                    operator = new StringTermImpl("none");
             }
             
             return un.unifies(operator, args[1]);
@@ -34,7 +34,7 @@ public class expr_operator extends DefaultInternalAction {
         } catch (ClassCastException e) {
             return false;
         } catch (Exception e) {
-            throw new JasonException("Error in 'disjuncexpr_operatortion': " + e.toString());
+            throw new JasonException("Error in 'expr_operator': " + e.toString());
         }
     }   
 }
