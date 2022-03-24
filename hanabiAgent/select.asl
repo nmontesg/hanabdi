@@ -4,6 +4,8 @@
 @actInTheGame[atomic]
 +player_turn(Me) : .my_name(Me) & .member(Me, [alice, bob, cathy])
     <- -+finished_abduction(0);
+    .findall(card(Color, Rank), unhinted(Color, Rank), Cards);
+    for ( .member(C, Cards) ) { .log(info, C); }
     !select_action;
     ?my_action(Action) [Label];
     .log(info, Action, " ", Label);

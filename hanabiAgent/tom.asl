@@ -56,6 +56,11 @@ knows(Agi, has_card_rank(Agj, S, R) [source(percept)]) :-
 
 knows(Ag, P [source(hint)]) :- player(Ag) & P [source(hint)].
 
+// Information explicitly derived from hints that has been obtained with the
+// most recent hitn
+
+knows(Ag, P [source(temp_abduction)]) :- player(Ag) & P [source(temp_abduction)].
+
 // Mental notes: as all agents share the same code, they all make the same
 // mental notes, which refer to the hints given and the ordered slots of
 // the players

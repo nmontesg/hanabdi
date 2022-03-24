@@ -227,18 +227,18 @@ abduce(Goal, Delta0, Delta) :-
 @updateExplanationsOn[atomic]
 +!update_abduction_explanations(Slot, Color, Rank) : abduction(on)
     <- .my_name(Me);
-    +has_card_color(Me, Slot, Color) [temp];
-    +has_card_rank(Me, Slot, Color) [temp];
     .findall(
         abduction_explanation(DNF) [source(abduction), abd_id(Id)],
         abduction_explanation(DNF) [source(abduction), abd_id(Id)],
         Explanations
     );
-    for ( .member(abduction_explanation(DNF) [source(abduction), abd_id(Id)], Explanations) ) {
+    +has_card_color(Me, Slot, Color) [temp];
+    +has_card_rank(Me, Slot, Color) [temp];
+    for ( .member(abduction_explanation(DNF), Explanations) ) {
         if ( DNF ) {
             -abduction_explanation(DNF) [source(abduction), abd_id(Id)];
-            .relevant_rules(ic [source(abduction), abd_id(Id)], [IC]);
-            -IC;
+            .relevant_rules(ic [abd_id(Id)], RelevantICs);
+            for ( .member(Rule, RelevantICs) ) { hanabiAgent.remove_rule(Rule [source(abduction)]); }
         }
     }
     -has_card_color(Me, Slot, Color) [temp];

@@ -13,17 +13,13 @@ public class sort_by_priority extends DefaultInternalAction {
     public Object execute(TransitionSystem ts, Unifier un, Term[] args) throws Exception {
         try {
             ListTermImpl listOfPlans = (ListTermImpl)args[0];
-            TreeMap priorityToPlan = new TreeMap<Integer,Plan>();
+            TreeMap priorityToPlan = new TreeMap<Double,Plan>();
 
             for (Term t : listOfPlans) {
                 Plan plan = (Plan)t;
                 NumberTermImpl prioTerm = (NumberTermImpl)plan.getLabel().getAnnot("priority").getTerm(0);
                 double prioDouble = prioTerm.solve();
-                int prioInt = (int)prioDouble;
-                while (priorityToPlan.containsKey(prioInt)) {
-                    prioInt += 1;
-                }
-                priorityToPlan.put(prioInt, plan);
+                priorityToPlan.put(prioDouble, plan);
             }
 
             Collection<Plan> sortedPlans = priorityToPlan.values();

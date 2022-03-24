@@ -36,5 +36,8 @@ public class HanabiAgent extends Agent {
     public void removeBeliefs() {
         bb.clear();
     }
-       
+    
+    public boolean deleteRule(Rule r) {
+        return bb.remove(r);
+    }
 }
