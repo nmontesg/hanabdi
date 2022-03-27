@@ -11,6 +11,8 @@
 // other players have to abduce with the state of the game as it is when
 // the action is selected, i.e. BEFORE it is performed
 
+my_turns(0).
+
 @receiveFinishMessage[atomic]
 +finished_abduction [source(Player)] : true
     <- ?finished_abduction(N);
@@ -21,6 +23,8 @@
 +finished_abduction(M) : num_players(N) & M == N-1
     <- ?my_action(Action);
     !Action;
+    ?my_turns(Turns);
+    -+my_turns(Turns+1);
     .abolish(my_action(_)).
 
 @playCard[atomic]
@@ -29,6 +33,7 @@
     play_card(Slot, Map);
     custom.map.get_by_key(Map, C, Color);
     custom.map.get_by_key(Map, R, Rank);
+    .log(info, "     -> ", Color, " ", Rank, "\n");
     !update_abduction_explanations(Slot, Color, Rank);
     // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);
@@ -45,6 +50,7 @@
     discard_card(Slot, Map);
     custom.map.get_by_key(Map, C, Color);
     custom.map.get_by_key(Map, R, Rank);
+    .log(info, "     -> ", Color, " ", Rank, "\n");
     !update_abduction_explanations(Slot, Color, Rank);
     // remove beliefs related to information on that card from hints
     !remove_hint_info(Me, Slot);
@@ -56,16 +62,14 @@
     finish_turn.
 
 @giveHint[atomic]
-+!give_hint(HintedPlayer, Mode, Value) : .my_name(Me)
++!give_hint(HintedPlayer, Mode, Value, SlotList) : my_name(Me)
     <- .concat("has_card_", Mode, String);
     .term2string(Term, String);
-    Query =.. [Term, [HintedPlayer, S1, Value], [source(percept)]];
-    .findall(S1, Query, SlotList);
     ?hint_id(Id);
     +hint(Id, Me, HintedPlayer, Mode, Value, SlotList);
     ?cards_per_player(N);
     for ( .range(S, 1, N) ) {
-        Belief =.. [Term, [HintedPlayer, S, Value], [source(hint), hint_id(Id)]];
+        Belief =.. [Term, [HintedPlayer, S, Value], [source(hint)]];
         if ( .member(S, SlotList) ) { +Belief; } else { +(~Belief); }
     }
     spend_info_token;
@@ -116,7 +120,7 @@
 // Percepts are automatically updated by the Jason interpreter.
 @removeHintInfo[atomic]
 +!remove_hint_info(Player, Slot) : true
-    <- .abolish(has_card_color(Player, Slot, _) [hint_id(_), source(hint)]);
-    .abolish(~has_card_color(Player, Slot, _) [hint_id(_), source(hint)]);
-    .abolish(has_card_rank(Player, Slot, _) [hint_id(_), source(hint)]);
-    .abolish(~has_card_rank(Player, Slot, _) [hint_id(_), source(hint)]).
+    <- .abolish(has_card_color(Player, Slot, _) [source(hint)]);
+    .abolish(~has_card_color(Player, Slot, _) [source(hint)]);
+    .abolish(has_card_rank(Player, Slot, _) [source(hint)]);
+    .abolish(~has_card_rank(Player, Slot, _) [source(hint)]).

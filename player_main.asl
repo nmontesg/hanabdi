@@ -1,8 +1,9 @@
 { include("hanabiAgent/actions.asl") }
-{ include("hanabiAgent/rules.asl") }
 { include("hanabiAgent/select.asl") }
 { include("hanabiAgent/tom.asl") }
 { include("hanabiAgent/abduction.asl") }
+{ include("hanabiAgent/common_slots_color.asl") }
+{ include("hanabiAgent/common_slots_rank.asl") }
 
 /* ---------- Plan to initialize ordered slots for all players ---------- */
 
@@ -22,7 +23,7 @@
     }
     ?strategy_file(Path);
     .include(Path);
-    .send(game_master, tell, ready).
+    .send(game_manager, tell, ready).
 
 /* ---------- Auxiliary ---------- */
 

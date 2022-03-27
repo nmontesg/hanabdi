@@ -2,30 +2,13 @@
 // strategy the agent is following, using ``possible worlds reasoning''.
 
 @actInTheGame[atomic]
-+player_turn(Me) : .my_name(Me) & .member(Me, [alice, bob, cathy])
++player_turn(Me) : .my_name(Me) //& .member(Me, [alice, bob]) //& my_turns(Turns) & Turns < 1
     <- -+finished_abduction(0);
-    .findall(card(Color, Rank), unhinted(Color, Rank), Cards);
-    for ( .member(C, Cards) ) { .log(info, C); }
     !select_action;
-    ?my_action(Action) [Label];
-    .log(info, Action, " ", Label);
-    !share_public_action(Action).
+    ?my_action(Action) [Annots];
+    .log(info, Action [Annots], "\n");
+    .broadcast(publicAction, Action).
 
-@sharePublicAction1[atomic]
-+!share_public_action(play_card(Slot)) : true
-    <- .broadcast(publicAction, play_card(Slot)).
-
-@sharePublicAction2[atomic]
-+!share_public_action(discard_card(Slot)) : true
-    <- .broadcast(publicAction, discard_card(Slot)).
-
-@sharePublicAction3[atomic]
-+!share_public_action(give_hint(HintedPlayer, Mode, Value)) : true
-    <- .concat("has_card_", Mode, String);
-    .term2string(Term, String);
-    Query =.. [Term, [HintedPlayer, S, Value], [source(percept)]];
-    .findall(S, Query, SlotList);
-    .broadcast(publicAction, give_hint(HintedPlayer, Mode, Value, SlotList)).
 
 @selectAction[atomic]
 +!select_action : true
@@ -38,41 +21,66 @@
         !evaluate_plan(Plan);
     }.
 
+
 @evaluatePlan[atomic]
 +!evaluate_plan(Plan) : true
-    <- custom.decompose_plan(Plan, Label, _, Context, _);
+    <- custom.decompose_plan(Plan, Label, {+?action(Action)}, Context, _);
+    Label =.. [PlanTitle, _, _];
+    -+plan_under_evaluation(PlanTitle);
+
     // find potential (partial) instantiations for action selection plan
     .setof(F, partially_instantiate(Context, [], F), SkolemInsts);
-    for ( .member(PartialInst, SkolemInsts) ) { !evaluate_partial_instantiation(PartialInst, Label); }.
+
+    // check what action do each of the complete possible instantiations of the
+    // partial instantiation lead to
+    for ( .member(PartialInst, SkolemInsts) ) {
+        !evaluate_partial_instantiation(PartialInst, Action);
+    }.
+
 
 @evaluatePartialInst1[atomic]
-+!evaluate_partial_instantiation(Skolem, Label) : .length(Skolem, N) & N > 0
-    <- .findall(W, potential_instantation(Skolem, W), Worlds);
-    .abolish(selected_action(_, _));
++!evaluate_partial_instantiation(PartialInst, ActionToMatch) : .length(PartialInst, N) & N > 0
+    <- // 1. Find the set of complete possible instantiations from the
+    // partial instantiation
+    .setof(W, potential_instantation(PartialInst, W), Worlds);
+
+    // 2. For every possible total instantiation, check if it is compatible
+    // with the ICs and what action it leads to
     for ( .member(W, Worlds) ) {
-        for ( .member(Fact, W) ) { +Fact [temp]; }
+        for ( .member(Fact, W) ) { +Fact [source(eval)]; }
         if ( not ic ) {
             ?action(A);
             +selected_action(W, A);
         }
-        for ( .member(Fact, W) ) { -Fact [temp]; }
+        for ( .member(Fact, W) ) { -Fact [source(eval)]; }
     }
-    .setof(Act, selected_action(_, Act), SelectedActions);
+
+    .setof(A, selected_action(_, A), SelectedActions);
     .abolish(selected_action(_, _));
-    if ( .length(SelectedActions, 1) ) {
-        .nth(0, SelectedActions, FinalAction);
-        -+my_action(FinalAction) [plan(Label)];
+
+    // 3. If all the possible total instantiations lead to the same action, 
+    // select it
+    if ( .length(SelectedActions, 1) & SelectedActions = [Action] & Action = ActionToMatch) {
+        // SelectedActions = [Action];
+        ?plan_under_evaluation(PlanTitle);
+        -+my_action(Action) [plan(PlanTitle)];
         .succeed_goal(select_action);
     }.
 
+
 @evaluatePartialInst2[atomic]
-+!evaluate_partial_instantiation([], Label) : true
-    <- ?action(A);
-    -+my_action(A) [plan(Label)];
++!evaluate_partial_instantiation([], ActionToMatch) : true
+    <- ?action(Action);
+    ?plan_under_evaluation(PlanTitle);
+    -+my_action(Action) [plan(PlanTitle)];
     .succeed_goal(select_action).
 
-unknown(has_card_color(Me, Slot, Color)) :- my_name(Me) & slot(Slot) & color(Color).
-unknown(has_card_rank(Me, Slot, Rank)) :- my_name(Me) & slot(Slot) & rank(Rank).
+
+/* ------------------------------------------------------------------------- */
+
+
+unknown(has_card_color(Me, Slot, Color) [source(percept)]) :- my_name(Me) & slot(Slot) & color(Color).
+unknown(has_card_rank(Me, Slot, Rank) [source(percept)]) :- my_name(Me) & slot(Slot) & rank(Rank).
 
 skolemize(has_card_color(P, S, C), has_card_color(P, S, free)) :- color(C).
 skolemize(has_card_rank(P, S, R), has_card_rank(P, S, free)) :- rank(R).

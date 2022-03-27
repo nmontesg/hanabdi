@@ -13,11 +13,11 @@
 +!adopt_perspective([]).
 
 @adoptPerspective2[atomic]
-+!adopt_perspective([H|T]) : .length([H|T], N) & N > 0
-    <- .findall(Phi [Annot], knows(H, Phi [Annot]), PhiList);
++!adopt_perspective([First|Rest]) : .length([First|Rest], N) & N > 0
+    <- .findall(Phi [Annot], knows(First, Phi [Annot]), PhiList);
     .relevant_rules(_, AllRules);
     ?logic_program(LPs);
-    .concat(LPs, [H], NewLPs);
+    .concat(LPs, [First], NewLPs);
     hanabiAgent.remove_beliefs;
     +logic_program(NewLPs);
     for ( .member(Phi [Annot], PhiList) ) { +Phi [Annot]; }
@@ -25,7 +25,7 @@
         custom.rule_head_body(Rule, Head, _);
         if ( Head \== ic [source(abduction)] ) { +Rule; }
     }
-    !adopt_perspective(T).
+    !adopt_perspective(Rest).
 
 
 /* -------- First-order Theory of Mind -------- */
@@ -55,11 +55,6 @@ knows(Agi, has_card_rank(Agj, S, R) [source(percept)]) :-
 // agents
 
 knows(Ag, P [source(hint)]) :- player(Ag) & P [source(hint)].
-
-// Information explicitly derived from hints that has been obtained with the
-// most recent hitn
-
-knows(Ag, P [source(temp_abduction)]) :- player(Ag) & P [source(temp_abduction)].
 
 // Mental notes: as all agents share the same code, they all make the same
 // mental notes, which refer to the hints given and the ordered slots of
