@@ -3,7 +3,7 @@ MAS hanabdi {
     // numPlayers, numLives, numInfoTokens, numColors, numRanks, seed,
     // abduction on/off, path to strategy file, file to write results
     environment:
-        hanabiEnv.HanabiGame(5, 3, 8, 5, 5, 10, off, "strategies/hyphenated.asl", "")
+        hanabiEnv.HanabiGame(3, 3, 8, 5, 5, 100, on, "strategies/hyphenated.asl", "")
 
     agents:
         game_manager;

@@ -134,6 +134,10 @@ abduce(Goal, Delta0, Delta) :-
 // with the BB (from the perspective of the other), and hence it could not
 // have been selected in the first place.
 
+@abduceOff[atomic]
++!abduce(_, _) : abduction(off).
+
+
 @abduceOn[atomic]
 +!abduce(ActingPlayer, Action) : abduction(on)
     <- hanabiAgent.backup_beliefs;
@@ -182,8 +186,8 @@ abduce(Goal, Delta0, Delta) :-
     !filter_explanations(PotentialExpls).
 
 
-@abduceOff[atomic]
-+!abduce(_, _) : abduction(off).
+@filterExplanations0[atomic]
++!filter_explanations([]).
 
 
 @filterExplanations1[atomic]
@@ -207,10 +211,6 @@ abduce(Goal, Delta0, Delta) :-
 
     .abolish(valid_explanation(_));
     .abolish(negated_explanation(_)).
-
-
-@filterExplanations2[atomic]
-+!filter_explanations([]).
 
 
 @validateExplanation[atomic]
@@ -253,6 +253,10 @@ abduce(Goal, Delta0, Delta) :-
 // card that has just been disclosed by playing or discarding it, that
 // explanation and its associated IC are removed
 
+@updateExplanationsOff[atomic]
++!update_abduction_explanations(_, _, _) : abduction(off).
+
+
 @updateExplanationsOn[atomic]
 +!update_abduction_explanations(Slot, Color, Rank) : abduction(on) & my_name(Me)
     <- .findall(
@@ -280,7 +284,3 @@ abduce(Goal, Delta0, Delta) :-
     }
     -has_card_color(Me, Slot, Color) [source(update)];
     -has_card_rank(Me, Slot, Rank) [source(update)].
-
-
-@updateExplanationsOff[atomic]
-+!update_abduction_explanations(_, _, _) : abduction(off).

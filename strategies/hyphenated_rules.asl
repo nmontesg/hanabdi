@@ -4,6 +4,16 @@
 
 /* ------------------------------------------------------------------------- */
 
+turns_ahead(Player, Diff) :-
+    my_name(Me) & turn_number(Me, T1) &
+    turn_number(Player, T2) & T2 >= T1 &
+    Diff = T2-T1.
+
+turns_ahead(Player, Diff) :-
+    my_name(Me) & turn_number(Me, T1) &
+    turn_number(Player, T2) & T2 < T1 &
+    num_players(NP) & Diff = T2-T1+NP.
+
 
 available_info_tokens :- num_info_tokens(Tokens) & Tokens > 0.
 spent_info_tokens :- max_info_tokens(Max) & num_info_tokens(Tokens) & Tokens < Max.

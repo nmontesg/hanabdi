@@ -6,11 +6,13 @@ ready_agents(0).
 
 @createAgents
 +!create_agents : true
-    <- .findall(Name, player(Name), PlayerList);
+    <- ?seed(S);
+    .set_random_seed(S);
+    .findall(Name, player(Name), PlayerList);
     ?cards_per_player(N);
     .findall(X, .range(X, 1, N), SlotList);
     for ( .member(Ag, PlayerList) ) {
-        .create_agent(Ag, "player_main.asl", [agentClass("hanabiAgent.HanabiAgent")]);
+        .create_agent(Ag, "hanabiAgent/main.asl", [agentClass("hanabiAgent.HanabiAgent")]);
         +ordered_slots(Ag, SlotList);
     }
     .broadcast(achieve, get_ready).

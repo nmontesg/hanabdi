@@ -9,10 +9,10 @@
 //      * I want to know what bob thinks my perspective is (nesting level 2):
 //              my_name(Me); !adopt_perspective([bob, Me]).
 
-@adoptPerspective1[atomic]
+@adoptPerspective0[atomic]
 +!adopt_perspective([]).
 
-@adoptPerspective2[atomic]
+@adoptPerspective1[atomic]
 +!adopt_perspective([First|Rest]) : .length([First|Rest], N) & N > 0
     <- .findall(Phi [Annot], knows(First, Phi [Annot]), PhiList);
     .relevant_rules(_, AllRules);

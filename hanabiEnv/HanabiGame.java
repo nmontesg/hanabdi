@@ -457,7 +457,8 @@ public class HanabiGame extends Environment {
     @Override
     public void stop() {
         clearAllPercepts();
-        System.out.println(String.format("Game finished with score %d.", score));
+        System.out.println(String.format("Game finished with score %d and %d hints.",
+            score, hintId-1));
 
         try {
             if (!resultsFile.isEmpty()) {

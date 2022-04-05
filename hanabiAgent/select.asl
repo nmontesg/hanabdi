@@ -78,10 +78,6 @@
 
 /* ------------------------------------------------------------------------- */
 
-
-unknown(has_card_color(Me, Slot, Color) [source(percept)]) :- my_name(Me) & slot(Slot) & color(Color).
-unknown(has_card_rank(Me, Slot, Rank) [source(percept)]) :- my_name(Me) & slot(Slot) & rank(Rank).
-
 skolemize(has_card_color(P, S, C), has_card_color(P, S, free)) :- color(C).
 skolemize(has_card_rank(P, S, R), has_card_rank(P, S, free)) :- rank(R).
 
@@ -99,7 +95,7 @@ partially_instantiate(Literal, Unknowns, Unknowns) :-
     not custom.expr_operator(Literal, _) & Literal.
 
 partially_instantiate(Literal, Unknowns, NewUnknowns) :-
-    not custom.expr_operator(Literal, _) & not Literal & not unknown(Literal) &
+    not custom.expr_operator(Literal, _) & not Literal & not abducible(Literal) &
     .relevant_rules(Literal, RL) & .length(RL, N) & N > 0 & .member(R, RL) &
     custom.unify_goal_rule(Literal, R, UnifiedR) & 
     custom.rule_head_body(UnifiedR, _, Body) &
@@ -107,9 +103,9 @@ partially_instantiate(Literal, Unknowns, NewUnknowns) :-
 
 partially_instantiate(Literal, Unknowns, Unknowns) :-
     not custom.expr_operator(Literal, _) & not Literal &
-    unknown(Literal) & .member(Literal, Unknowns).
+    abducible(Literal) & .member(Literal, Unknowns).
 
 partially_instantiate(Literal, Unknowns, [SkolemLiteral|Unknowns]) :-
     not custom.expr_operator(Literal, _) & not Literal &
-    unknown(Literal) & not .member(Literal, Unknowns) &
+    abducible(Literal) & not .member(Literal, Unknowns) &
     skolemize(Literal, SkolemLiteral).
