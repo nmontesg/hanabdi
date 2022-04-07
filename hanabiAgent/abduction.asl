@@ -92,23 +92,19 @@ ic :-
 
 abduce(Goal1 & Goal2, Delta0, Delta) :-
     custom.expr_operator(Goal1 & Goal2, "and") &
-    //.log(debug, "abducing ", Goal1 & Goal2) &
     abduce(Goal1, Delta0, Delta1) &
     abduce(Goal2, Delta1, Delta).
 
 abduce(Goal, Delta, Delta) :-
     not custom.expr_operator(Goal, _) & Goal.
-    // & .log(debug, Goal, " is derived from the BB").
 
 abduce(Goal, Delta, Delta) :-
     not custom.expr_operator(Goal, _) & not Goal &
     abducible(Goal) & .member(Goal, Delta).
-    // & .log(debug, Goal, " has already been abduced").
 
 abduce(Goal, Delta, [Goal|Delta]) :-
     not custom.expr_operator(Goal, _) & not Goal &
     abducible(Goal) & not .member(Goal, Delta).
-    // & .log(debug, Goal, " is added to the explanation: ", [Goal|Delta]).
 
 abduce(Goal, Delta0, Delta) :-
     not custom.expr_operator(Goal, _) & not Goal & not abducible(Goal) &
@@ -116,7 +112,6 @@ abduce(Goal, Delta0, Delta) :-
     .member(R, RL) &
     custom.unify_goal_rule(Goal, R, UnifiedR) & 
     custom.rule_head_body(UnifiedR, _, Body) &
-    // .log(debug, Goal, " is derived from rule: ", UnifiedR) &
     abduce(Body, Delta0, Delta).
 
 
@@ -159,9 +154,7 @@ abduce(Goal, Delta0, Delta) :-
     .findall(Plan, .relevant_plan({+?action(Action)}, Plan), LP);
     for ( .member(P, LP) ) {
         custom.decompose_plan(P, _, _, Context, _);
-        // .log(debug, P, "\n", Context, "\n");
         .setof(Delta, abduce(Context, [], Delta), LExpl);
-        // .log(debug, LExpl, "\n");
         for ( .member(Expl, LExpl) ) { 
             if ( .length(Expl, Num) & Num > 0) { +potential_explanation(Expl); }
         }

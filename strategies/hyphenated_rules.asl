@@ -156,8 +156,7 @@ useful(Color, Rank) :-
     stack(Color, Stack) & Stack < Rank &
     max_stack_height(Color, Max) & Rank <= Max.
 
-// A card is useless if it cannot be played at any point in the future of the
-// game
+// A card is useless if it cannot be played at any point in the future of the game
 useless(Color, Rank) :-
     color(Color) & rank(Rank) &
     stack(Color, Stack) & Stack >= Rank.
