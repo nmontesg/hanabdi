@@ -142,13 +142,7 @@ abduce(Goal, Delta0, Delta) :-
     // use that explicit knowledge with [source(aux)] annotation, so not to
     // interfere with knowledge from previous hints
     if ( Action = give_hint(HintedPlayer, Mode, Value, SlotList) ) {
-        .concat("has_card_", Mode, String);
-        .term2string(Term, String);
-        ?cards_per_player(N);
-        for ( .range(S, 1, N) ) {
-            Belief =.. [Term, [HintedPlayer, S, Value], [source(aux)]];
-            if ( .member(S, SlotList) ) { +Belief; } else { +(~Belief); }
-        }
+        !add_hint_explicit_info(HintedPlayer, Mode, Value, SlotList, aux);
     }
 
     .findall(Plan, .relevant_plan({+?action(Action)}, Plan), LP);
@@ -167,16 +161,21 @@ abduce(Goal, Delta0, Delta) :-
 
     // update explicit information conveyed by the hint with the definitive source(hint)
     if ( Action = give_hint(HintedPlayer, Mode, Value, SlotList) ) {
-        .concat("has_card_", Mode, String);
-        .term2string(Term, String);
-        ?cards_per_player(N);
-        for ( .range(S, 1, N) ) {
-            Belief =.. [Term, [HintedPlayer, S, Value], [source(hint)]];
-            if ( .member(S, SlotList) ) { +Belief; } else { +(~Belief); }
-        }
+        !add_hint_explicit_info(HintedPlayer, Mode, Value, SlotList, hint);
     }
 
     !filter_explanations(PotentialExpls).
+
+
+@addHintExplicitInfo[atomic]
++!add_hint_explicit_info(HintedPlayer, Mode, Value, SlotList, Source) : true
+    <-  .concat("has_card_", Mode, String);
+    .term2string(Term, String);
+    ?cards_per_player(N);
+    for ( .range(S, 1, N) ) {
+        Belief =.. [Term, [HintedPlayer, S, Value], [source(Source)]];
+        if ( .member(S, SlotList) ) { +Belief; } else { +(~Belief); }
+    }.
 
 
 @filterExplanations0[atomic]
